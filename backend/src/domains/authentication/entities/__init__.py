@@ -2,4 +2,4 @@
 List of authentication entities
 """
 
-from ..entities import User
+from .user_entity import User, UserData
