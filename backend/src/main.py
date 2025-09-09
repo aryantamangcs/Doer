@@ -1,6 +1,4 @@
-def main():
-    print("Hello from backend!")
+import uvicorn
+from fastapi import FastAPI
 
-
-if __name__ == "__main__":
-    main()
+app = FastAPI(title="Doer Application", description="A simple project for leveling up")
