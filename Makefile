@@ -1,3 +1,3 @@
 run:
 	@echo "Starting backend"
-	uvicorn backend.src.main:app --reload --port 8000
+	PYTHONPATH=./backend/ python -m uvicorn src.main:app --reload --port 8000
