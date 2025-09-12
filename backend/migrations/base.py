@@ -149,6 +149,14 @@ class BaseMigration:
         self.fields.append(co)
         return co
 
+    def uuid(self, name: str, **kwargs):
+        """
+        Returns the SQLALCHEMY DateTime field
+        """
+        co = sa.Column(name, sa.UUID(as_uuid=True), **kwargs)
+        self.fields.append(co)
+        return co
+
     def unique_constraint(self, *columns):
         """
         Returns the unique constraint
