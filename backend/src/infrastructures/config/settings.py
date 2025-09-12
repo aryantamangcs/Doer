@@ -4,7 +4,7 @@ from pathlib import Path
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 BASE_DIR = (
-    Path(__file__).resolve().parent.parent.parent
+    Path(__file__).resolve().parent.parent.parent.parent
 )  # becuase settings.py is inside src/infrastructure/config
 ENV_FILE = BASE_DIR / ".env"
 
