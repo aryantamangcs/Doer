@@ -14,6 +14,8 @@ class RefreshTokenModel(
     Refresh Token Model to store refresh token details in db
     """
 
+    __tablename__ = "auth_refresh_tokens"
+
     id: Mapped[int] = mapped_column(primary_key=True, index=True, nullable=False)
     user_id: Mapped[int] = mapped_column(
         ForeignKey("sys_users.id", ondelete="CASCADE"), index=True, nullable=False
