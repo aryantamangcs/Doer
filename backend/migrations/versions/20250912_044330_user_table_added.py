@@ -25,6 +25,7 @@ class UserMigration(BaseMigration):
         self.create_whole_table = True
         # describe your schemas here
         self.base_columns()
+        self.timestamp_mixin_columns()
         self.string(name="first_name", nullable=False)
         self.string(name="last_name", nullable=False)
         self.string(name="email", nullable=False)
