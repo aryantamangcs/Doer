@@ -60,11 +60,12 @@ def run_migrations_online() -> None:
     and associate a connection with the context.
 
     """
+    section = config.get_section(config.config_ini_section)
+    section["sqlalchemy.url"] = settings.SYNC_DATABASE_URL  # dynamic DB URL
     connectable = engine_from_config(
-        {},
+        section,
         prefix="sqlalchemy.",
         poolclass=pool.NullPool,
-        url=settings.SYNC_DATABASE_URL,
     )
 
     with connectable.connect() as connection:
