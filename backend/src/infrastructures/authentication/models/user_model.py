@@ -4,10 +4,11 @@ from sqlalchemy import UUID
 from sqlalchemy.dialects.postgresql import UUID as PGUUID
 from sqlalchemy.orm import Mapped, mapped_column
 
-from ..db.config import Base
+from src.infrastructures.common.models import BaseModel
+from src.infrastructures.common.timestamp_mixin import TimeStampMixin
 
 
-class UserModel(Base):
+class UserModel(BaseModel, TimeStampMixin):
     """
     User Model using SQLAlchemy
     """
