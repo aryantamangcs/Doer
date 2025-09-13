@@ -1,6 +1,6 @@
 run:
 	@echo "Starting backend"
-	PYTHONPATH=./backend/ python -m uvicorn src.main:app --reload --port 8080
+	PYTHONPATH=./backend/ python -m uvicorn src.main:app --host 0.0.0.0 --reload --port 8080
 migration:
 	@echo "Creating migration"
 	PYTHONPATH=./backend/ MIGRATION_NAME=$(name) alembic -c ./backend/alembic.ini revision -m "$(msg)" --rev-id $(shell date -u +%Y%m%d_%H%M%S)
