@@ -61,3 +61,11 @@ class UserRepo(ABC):
         Returns :
             User if found by email else returns None
         """
+
+    @abstractmethod
+    async def get_by_username(self, username: str) -> User | None:
+        """
+        Gets user by username if exists
+        Returns :
+            User if found by username else returns None
+        """

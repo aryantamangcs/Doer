@@ -14,6 +14,8 @@ class TimeStampMixin(Base):  # pylint: disable=(too-few-public-methods)
     - deleted_at
     """
 
+    __abstract__ = True
+
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         server_default=func.now(),

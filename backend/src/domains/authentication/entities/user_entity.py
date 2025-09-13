@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from typing import Optional
 from uuid import UUID
 
 
@@ -8,13 +9,13 @@ class UserData:
     User Data data class to hold data values
     """
 
-    id: int
     first_name: str
     last_name: str
     username: str
     email: str
     identifier: UUID
     password: str
+    id: Optional[int] = None
 
 
 class User:
@@ -42,3 +43,9 @@ class User:
         Changes the password of the user
         """
         self.password = password
+
+    def change_username(self, username: str) -> None:
+        """
+        Change the username of the user
+        """
+        self.username = username

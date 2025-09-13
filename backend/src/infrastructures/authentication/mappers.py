@@ -25,7 +25,7 @@ def to_entity(user: UserModel) -> User:
         first_name=user.first_name,
         last_name=user.last_name,
         email=user.email,
-        identifier=UUID(user.identifier),
+        identifier=user.identifier,
         password=user.password,
         username=user.username,
     )

@@ -11,4 +11,6 @@ class BaseModel(Base):  # pylint: disable=(too-few-public-methods)
 
     """
 
+    __abstract__ = True
+
     id: Mapped[int] = mapped_column(primary_key=True, index=True, nullable=False)

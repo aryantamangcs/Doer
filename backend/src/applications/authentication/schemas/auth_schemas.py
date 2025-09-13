@@ -1,3 +1,5 @@
+from uuid import UUID
+
 from pydantic import BaseModel, EmailStr, Field
 
 
@@ -22,3 +24,33 @@ class SignUpSchema(BaseModel):
         description="Minimum 8 character long password",
         min_length=8,
     )
+
+    model_config = {"extra": "forbid"}
+
+
+class LoginSchema(BaseModel):
+    """
+    Schema to validate the payload while logging in user
+    """
+
+    email: EmailStr = Field(
+        ..., title="Email address", description="Email adress of the user"
+    )
+    password: str = Field(..., title="Password", description="Password of the user")
+
+    model_config = {"extra": "forbid"}
+
+
+class TokenPayloadSchema(BaseModel):
+    """
+    Schema to include payload in tokens
+    """
+
+    id: int | None
+    first_name: str
+    last_name: str
+    username: str
+    email: str
+    identifier: UUID | str
+
+    model_config = {"from_attributes": True}

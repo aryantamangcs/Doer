@@ -1,10 +1,11 @@
 from typing import Callable
 
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from infrastructures.authentication.mappers import to_entity, to_model
 from src.domains.authentication.entities import User
 from src.domains.authentication.repositories import UserRepo
+from src.infrastructures.authentication.mappers import to_entity, to_model
 from src.infrastructures.db.config import async_session
 
 from ..models.user_model import UserModel
@@ -15,7 +16,7 @@ class UserRepoSqlAlchemy(UserRepo):
     Implementation of Domain UserRepo
     """
 
-    def __init__(self, session: Callable[[], AsyncSession]):
+    def __init__(self, session: Callable[[], AsyncSession] = async_session):
         self.get_session = session
 
     async def create(self, user: User) -> User:
@@ -28,3 +29,58 @@ class UserRepoSqlAlchemy(UserRepo):
             await session.commit()
             await session.refresh(new_user)
             return to_entity(new_user)
+
+    async def find_one(self, **kwargs) -> User | None:
+        """
+        Finds user
+        Returns:
+            User if found else None
+        """
+
+    async def filter(self, **kwargs) -> list[User]:
+        """
+        Finds  list of users
+        Returns:
+            List of users
+        """
+
+    async def get_all(self, **kwargs) -> list[User]:
+        """
+        Finds  list of users
+        Returns:
+            List of users
+        """
+
+    async def update(self, user: User, **kwargs) -> User:
+        """
+        Finds user
+        Returns:
+            Update users
+        """
+
+    async def delete(self, **kwargs) -> None:
+        """
+        Deletes the user
+        """
+
+    async def get_by_email(self, email: str) -> User | None:
+        """
+        Gets user by email if exists
+        Returns :
+            User if found by email else returns None
+        """
+        async with self.get_session() as session:
+            stmt = select(UserModel).where(UserModel.email == email)
+            result = await session.scalar(stmt)
+            return result
+
+    async def get_by_username(self, username: str) -> User | None:
+        """
+        Gets user by username if exists
+        Returns :
+            User if found by username else returns None
+        """
+        async with self.get_session() as session:
+            stmt = select(UserModel).where(UserModel.username == username)
+            result = await session.scalar(stmt)
+            return result

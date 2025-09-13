@@ -16,6 +16,9 @@ class Settings(BaseSettings):
 
     SYNC_DATABASE_URL: str
     ASYNC_DATABASE_URL: str
+    JWT_SECRET_KEY: str
+    JWT_ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
+    JWT_REFRESH_TOKEN_EXPIRE_MINUTES: int = 43200  # a month
 
     model_config = SettingsConfigDict(env_file=ENV_FILE, extra="ignore")
 
