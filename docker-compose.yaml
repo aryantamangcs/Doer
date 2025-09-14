@@ -12,5 +12,29 @@ services:
     ports:
       - "5000:5432"
 
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: doer_backend
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./backend/:app
+    env_file:
+      - ./backend/.env
+    depends_on:
+      - db
+
+  frontend:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    container_name: doer_frontend
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend/:app
+
 volumes:
   postgres_data:
