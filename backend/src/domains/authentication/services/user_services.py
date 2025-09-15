@@ -35,32 +35,3 @@ class UserServices:
         if not username_exists:
             return False
         return True
-
-    def hash_password(self, password: str) -> str:
-        """
-        Hashes the password using bcrypt
-        Returns:
-            It returns the hashed password
-        """
-        byte_password = password.encode()
-        hashed_password = bcrypt.hashpw(byte_password, bcrypt.gensalt())
-        return hashed_password.decode()
-
-    async def verify_password(self, hashed_password: str, password: str) -> bool:
-        """
-        Checks if the hashed_password or password is same or not
-        Returns :
-            True if password is verified
-            Else False
-        """
-        if bcrypt.checkpw(password.encode(), hashed_password.encode()):
-            return True
-
-        return False
-
-    async def list_users(self) -> list[User]:
-        """
-        List all the users
-        """
-        all_users = await self.user_repo.get_all()
-        return all_users
