@@ -1,17 +1,14 @@
-import uuid
 from datetime import datetime
 from typing import Any
 
-from src.applications.authentication.mappers import UserMapper
 from src.applications.authentication.schemas.auth_schemas import (
     LoginSchema,
     SignUpSchema,
     TokenPayloadSchema,
 )
-from src.applications.authentication.services.token_services import TokenService
+from src.domains.authentication.entities.user_entity import User
 from src.domains.authentication.repositories import UserRepo
 from src.domains.authentication.services import UserServices
-from src.infrastructures.authentication.mappers import to_model
 from src.infrastructures.authentication.models.refresh_token_model import (
     RefreshTokenModel,
 )
@@ -22,7 +19,16 @@ from src.infrastructures.authentication.repository.user_repo_sqlalchemy import (
     UserRepoSqlAlchemy,
 )
 from src.infrastructures.config.settings import get_settings
+from src.infrastructures.hasher.hash_service import Hasher
+from src.infrastructures.token.jwt_service import TokenService
 from src.shared.exceptions import ConflictError, CreateError, InvalidError, ServerError
+
+from ..exceptions.auth_exceptions import (
+    EmailExistsError,
+    LoginInvalidError,
+    RefreshTokenError,
+    UsernameExistsError,
+)
 
 settings = get_settings()
 
@@ -32,13 +38,19 @@ class AuthServices:
     List of authentication concerning services and methods
     """
 
-    def __init__(self, repo: UserRepo, refresh_token_repo: RefreshTokenRepoSQLAchemy):
+    def __init__(
+        self,
+        repo: UserRepo,
+        refresh_token_repo: RefreshTokenRepoSQLAchemy,
+        hasher: Hasher,
+    ):
         """
         Sets up repository and domain services
         """
         self.repo = repo
         self.refresh_token_repo = refresh_token_repo
         self.domain_serivce = UserServices(repo)
+        self.hasher = hasher
 
     async def create_user(self, payload: SignUpSchema) -> dict[str, Any]:
         """
@@ -56,25 +68,26 @@ class AuthServices:
         )
 
         if email_exists:
-            raise ConflictError(detail="User with this email already exists.")
+            raise EmailExistsError()
         if username_exists:
-            raise ConflictError(detail="User with this username already exists.")
+            raise UsernameExistsError()
 
-        identifier = uuid.uuid4()  # every user is assigned a unique idenitifer
-        user = UserMapper.to_domain(payload, identifier)
-        user.password = self.domain_serivce.hash_password(user.password)
-        user = await self.repo.create(user)
-        user_model = to_model(user)
-
-        user_details = TokenPayloadSchema.model_validate(
-            user_model, from_attributes=True
+        user = User.create_user(
+            first_name=payload.first_name,
+            last_name=payload.last_name,
+            email=payload.email,
+            password=payload.password,
+            username=payload.username,
+            hasher=self.hasher,
         )
-        user_details.identifier = str(user_details.identifier)
+        await self.repo.create(user)
+
+        user_details = TokenPayloadSchema.model_validate(user, from_attributes=True)
         access_token, refresh_token = self.get_access_refresh_token(
-            user_details.model_dump(exclude={"id"})
+            user_details.model_dump()
         )
 
-        await self.save_refresh_token(refresh_token, user_id=user_details.id)
+        await self.save_refresh_token(refresh_token, user_id=user.id)
         return {"access_token": access_token, "refresh_token": refresh_token}
 
     async def validate_credentials(self, payload: LoginSchema) -> dict[str, Any]:
@@ -86,24 +99,17 @@ class AuthServices:
         user = await self.repo.get_by_email(payload.email)
         if not user:
             raise InvalidError(detail="Invalid credentials")
-        verified = await self.domain_serivce.verify_password(
-            user.password, payload.password
-        )
+        verified = user.verify_password(payload.password, self.hasher)
         if not verified:
-            raise InvalidError(detail="Invalid credentials")
+            raise LoginInvalidError()
 
-        user_model = to_model(user)
+        user_details = TokenPayloadSchema.model_validate(user, from_attributes=True)
 
-        user_details = TokenPayloadSchema.model_validate(
-            user_model, from_attributes=True
-        )
-        user_details.identifier = str(user_details.identifier)
-
-        token = self.get_access_refresh_token(user_details.model_dump(exclude={"id"}))
+        token = self.get_access_refresh_token(user_details.model_dump())
         refresh_token = await self.refresh_token_repo.get_refresh_token_by_user(user.id)
 
         if not refresh_token:
-            raise ServerError(detail="Error while fetching refresh token")
+            raise RefreshTokenError(detail="Error while fetching refresh token")
 
         return {"access_token": token[0], "refresh_token": refresh_token}
 
@@ -151,4 +157,5 @@ def get_auth_services() -> AuthServices:
 
     repo = UserRepoSqlAlchemy()
     refresh_token_repo = RefreshTokenRepoSQLAchemy()
-    return AuthServices(repo, refresh_token_repo)
+    hasher = Hasher()
+    return AuthServices(repo, refresh_token_repo, hasher=hasher)

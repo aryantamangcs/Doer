@@ -46,11 +46,10 @@ class TokenPayloadSchema(BaseModel):
     Schema to include payload in tokens
     """
 
-    id: int | None
     first_name: str
     last_name: str
     username: str
     email: str
-    identifier: UUID | str
+    identifier: str
 
     model_config = {"from_attributes": True}

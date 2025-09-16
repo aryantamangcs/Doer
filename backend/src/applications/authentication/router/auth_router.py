@@ -13,7 +13,7 @@ from ..services.auth_services import get_auth_services
 
 router = APIRouter(prefix="/auth")
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("doer_logger")
 
 
 @router.post("/signup", response_model=CustomResponseSchema)
