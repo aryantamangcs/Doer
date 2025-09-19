@@ -1,7 +1,10 @@
 from datetime import datetime
 from typing import Any
 
+from pydantic import EmailStr, ValidationError
+
 from src.applications.authentication.schemas.auth_schemas import (
+    CheckUserCredentialsSchema,
     LoginSchema,
     SignUpSchema,
     TokenPayloadSchema,
@@ -21,9 +24,10 @@ from src.infrastructures.authentication.repository.user_repo_sqlalchemy import (
 from src.infrastructures.config.settings import get_settings
 from src.infrastructures.hasher.hash_service import Hasher
 from src.infrastructures.token.jwt_service import TokenService
-from src.shared.exceptions import ConflictError, CreateError, InvalidError, ServerError
+from src.shared.exceptions import CreateError, InvalidError
 
 from ..exceptions.auth_exceptions import (
+    CheckUserError,
     EmailExistsError,
     LoginInvalidError,
     RefreshTokenError,
@@ -72,22 +76,24 @@ class AuthServices:
         if username_exists:
             raise UsernameExistsError()
 
+        hashed_password = self.domain_serivce.hash_password(
+            payload.password, self.hasher
+        )
         user = User.create_user(
             first_name=payload.first_name,
             last_name=payload.last_name,
             email=payload.email,
-            password=payload.password,
+            password=hashed_password,
             username=payload.username,
-            hasher=self.hasher,
         )
-        await self.repo.create(user)
+        new_user = await self.repo.add(user)
 
-        user_details = TokenPayloadSchema.model_validate(user, from_attributes=True)
+        user_details = TokenPayloadSchema.model_validate(new_user, from_attributes=True)
         access_token, refresh_token = self.get_access_refresh_token(
             user_details.model_dump()
         )
 
-        await self.save_refresh_token(refresh_token, user_id=user.id)
+        await self.save_refresh_token(refresh_token, user_id=new_user.id)
         return {"access_token": access_token, "refresh_token": refresh_token}
 
     async def validate_credentials(self, payload: LoginSchema) -> dict[str, Any]:
@@ -99,7 +105,9 @@ class AuthServices:
         user = await self.repo.get_by_email(payload.email)
         if not user:
             raise InvalidError(detail="Invalid credentials")
-        verified = user.verify_password(payload.password, self.hasher)
+        verified = self.domain_serivce.verify_password(
+            user._password, payload.password, self.hasher
+        )
         if not verified:
             raise LoginInvalidError()
 
@@ -148,6 +156,30 @@ class AuthServices:
             await self.refresh_token_repo.create(refresh_token)
         except Exception as e:
             raise CreateError(detail="Error while creating refresh token") from e
+
+    async def check_user_credentials(
+        self, email: EmailStr | None, username: str | None
+    ) -> str | None:
+        """
+        Checks the user credentials before for validation
+        """
+        if not (email or username):
+            raise CheckUserError(detail="Either email or username must be provided")
+        if email and username:
+            raise CheckUserError(detail="Either email or username must be provided")
+
+        if email:
+            email_exists = await self.domain_serivce.check_email_already_exists(email)
+            if email_exists:
+                raise EmailExistsError()
+            return email
+        if username:
+            username_exists = await self.domain_serivce.check_username_already_exists(
+                username
+            )
+            if username_exists:
+                raise UsernameExistsError()
+            return username
 
 
 def get_auth_services() -> AuthServices:

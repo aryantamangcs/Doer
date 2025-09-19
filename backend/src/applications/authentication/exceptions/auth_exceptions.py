@@ -1,10 +1,25 @@
 from starlette.status import (
     HTTP_400_BAD_REQUEST,
     HTTP_409_CONFLICT,
+    HTTP_422_UNPROCESSABLE_ENTITY,
     HTTP_500_INTERNAL_SERVER_ERROR,
 )
 
 from src.shared.exceptions import ConflictError, DomainError, InvalidError
+
+
+class CheckUserError(DomainError):
+    """
+    Check User Error
+    """
+
+    def __init__(
+        self,
+        detail: str = "Check User Error",
+        data: str | None = None,
+        status_code: int = HTTP_422_UNPROCESSABLE_ENTITY,
+    ):
+        super().__init__(status_code=status_code, detail=detail, data=data)
 
 
 class EmailExistsError(ConflictError):

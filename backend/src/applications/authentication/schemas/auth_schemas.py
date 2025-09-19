@@ -1,6 +1,7 @@
+from typing import Optional
 from uuid import UUID
 
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, EmailStr, Field, model_validator
 
 
 class SignUpSchema(BaseModel):
@@ -39,6 +40,27 @@ class LoginSchema(BaseModel):
     password: str = Field(..., title="Password", description="Password of the user")
 
     model_config = {"extra": "forbid"}
+
+
+class CheckUserCredentialsSchema(BaseModel):
+    """
+    Schema to validate the payload while checking user details
+    """
+
+    email: Optional[EmailStr] = Field(default=None, title="Email address")
+    username: Optional[str] = Field(default=None, title="Username")
+
+    @model_validator(mode="after")
+    def check_payload(self):
+        """
+        Check if email and username both are provided
+        If yes it raises error
+        """
+
+        if self.email and self.username:
+            raise ValueError("Either email or username can be provided")
+
+        return self
 
 
 class TokenPayloadSchema(BaseModel):

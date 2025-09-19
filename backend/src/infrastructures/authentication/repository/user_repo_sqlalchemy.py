@@ -18,9 +18,9 @@ class UserRepoSqlAlchemy(UserRepo):
     def __init__(self, session: Callable[[], AsyncSession] = async_session):
         self.get_session = session
 
-    async def create(self, user: User) -> User:
+    async def add(self, user: User) -> User:
         """
-        Creates the user and returns the newly created user
+        adds the user and returns the newly created user
         """
         async with self.get_session() as session:
             new_user = UserModel(

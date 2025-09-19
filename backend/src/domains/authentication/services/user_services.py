@@ -1,7 +1,5 @@
-import bcrypt
-
-from ..entities import User
 from ..repositories import UserRepo
+from .password_hasher import PasswordHasher
 
 
 class UserServices:
@@ -35,3 +33,23 @@ class UserServices:
         if not username_exists:
             return False
         return True
+
+    def hash_password(self, password: str, hasher: PasswordHasher) -> str:
+        """
+        Hashes the password and returns the hashed password
+        """
+        return hasher.hash(password)
+
+    def verify_password(
+        self, hashed_password: str, password: str, hasher: PasswordHasher
+    ) -> bool:
+        """
+        Verifies the password
+        Args:
+            hashed_password
+            password
+        Returns:
+            True if password is verified else False
+        """
+
+        return hasher.verify(hashed_password, password)

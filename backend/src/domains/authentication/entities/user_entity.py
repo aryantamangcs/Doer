@@ -35,32 +35,29 @@ class User:
             return True
         return False
 
-    def change_password(self, password: str, hasher) -> None:
+    def change_password(self, password: str) -> bool:
         """
         Changes the password of the user
+        Args:
+            password :- ! Hashed password should be provided
+        Returns:
+            True if password change is successful else False
         """
-        if len(password) < 8:
-            raise DomainError(detail="New password must be at least 8 characters")
+        try:
+            self._password = password
+            return True
+        except Exception:  # pylint: disable=broad-except
+            return False
 
-        self._password = hasher.hash(password)
-
-    def change_username(self, username: str) -> None:
+    def change_username(self, username: str) -> bool:
         """
         Change the username of the user
         """
-        self.username = username
-
-    @classmethod
-    def hash_password(cls, password: str, hasher) -> str:
-        """
-        Hashes the password using haser service
-        Args:
-            User provided password
-            Hasher Service
-        Returns
-            Newly hashed password in string
-        """
-        return hasher.hash(password)
+        try:
+            self.username = username
+            return True
+        except Exception:  # pylint: disable=broad-except
+            return False
 
     @classmethod
     def create_user(
@@ -70,13 +67,13 @@ class User:
         username: str,
         email: str,
         password: str,
-        hasher,
         identifier: str = str(uuid4()),
     ) -> "User":
         """
         Creates the user
         Args
             first_name, last_name,username,email,identifier,password
+            password:- ! Password must be hashed
         Returns
             instance of User class
         """
@@ -89,6 +86,6 @@ class User:
             last_name=last_name,
             username=username,
             email=email,
-            _password=cls.hash_password(password, hasher),
+            _password=password,
             identifier=identifier,
         )

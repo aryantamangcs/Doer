@@ -9,9 +9,9 @@ class UserRepo(ABC):
     """
 
     @abstractmethod
-    async def create(self, user: User) -> User:
+    async def add(self, user: User) -> User:
         """
-        Creates user
+        adds user
         Returns:
             User
         """
