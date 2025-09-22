@@ -6,7 +6,7 @@ from starlette.status import (
     HTTP_500_INTERNAL_SERVER_ERROR,
 )
 
-from src.shared.exceptions import DomainException
+from src.shared.exceptions import DomainError
 from src.shared.response import CustomResponse as cr
 
 
@@ -18,7 +18,7 @@ async def global_exception_handler(request: Request, exc: Exception):
         status_code = HTTP_422_UNPROCESSABLE_ENTITY
         detail = exc.errors()
 
-    if isinstance(exc, DomainException):
+    if isinstance(exc, DomainError):
         status_code = exc.status_code
         detail = exc.detail
         data = exc.data
@@ -35,4 +35,4 @@ def add_exceptions_handler(app: FastAPI):
     Adds alll exception handlers to the application
     """
     app.add_exception_handler(RequestValidationError, global_exception_handler)
-    app.add_exception_handler(DomainException, global_exception_handler)
+    app.add_exception_handler(DomainError, global_exception_handler)

@@ -1,10 +1,10 @@
 import logging
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Query
+from pydantic import EmailStr
 from starlette.status import HTTP_200_OK, HTTP_201_CREATED
 
 from src.applications.authentication.schemas.auth_schemas import LoginSchema
-from src.infrastructures.authentication.models import refresh_token_model
 from src.shared.response import CustomResponse as cr
 from src.shared.response import CustomResponseSchema
 
@@ -13,7 +13,7 @@ from ..services.auth_services import get_auth_services
 
 router = APIRouter(prefix="/auth")
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("doer_logger")
 
 
 @router.post("/signup", response_model=CustomResponseSchema)
@@ -69,3 +69,20 @@ def refresh_token():
         RefreshTokenExpiredError if the refresh token has expired
         InvalidRefreshTokenError if the provided refresh token is not valid
     """
+
+
+@router.get("/check-user", response_model=CustomResponseSchema)
+async def check_user(
+    email: EmailStr = Query(
+        None, description="Email to check whether it exists or not"
+    ),
+    username: str = Query(
+        None, description="Username to check whether it exists or not"
+    ),
+    auth_service=Depends(get_auth_services),
+):
+    """
+    Checks whether there is any conflict error
+    """
+    value = await auth_service.check_user_credentials(email=email, username=username)
+    return cr.success(message=f"{value} is available")

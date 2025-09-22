@@ -1,4 +1,4 @@
-import logging
+from typing import Optional
 
 from starlette.status import (
     HTTP_400_BAD_REQUEST,
@@ -7,15 +7,22 @@ from starlette.status import (
     HTTP_500_INTERNAL_SERVER_ERROR,
 )
 
-logger = logging.getLogger(__name__)
+from src.shared.logger.ansi_logger import get_logger
+
+logger = get_logger("doer")
 
 
-class DomainException(Exception):
+class DomainError(Exception):
     """
     Custom base domain  exception
     """
 
-    def __init__(self, detail: str, data: str, status_code: int = HTTP_400_BAD_REQUEST):
+    def __init__(
+        self,
+        detail: str,
+        data: Optional[str] = None,
+        status_code: int = HTTP_400_BAD_REQUEST,
+    ):
         super().__init__(detail)
         logger.exception("%s (status_code = %d)", detail, status_code)
         self.status_code = status_code
@@ -23,7 +30,7 @@ class DomainException(Exception):
         self.data = data
 
 
-class NotFoundError(DomainException):
+class NotFoundError(DomainError):
     """
     Custom Exception for not found
     """
@@ -37,7 +44,7 @@ class NotFoundError(DomainException):
         super().__init__(status_code=status_code, detail=detail, data=data)
 
 
-class ConflictError(DomainException):
+class ConflictError(DomainError):
     """
     Exception for already exists
     """
@@ -51,7 +58,7 @@ class ConflictError(DomainException):
         super().__init__(status_code=status_code, detail=detail, data=data)
 
 
-class CreateError(DomainException):
+class CreateError(DomainError):
     """
     Exception for create error
     """
@@ -65,7 +72,7 @@ class CreateError(DomainException):
         super().__init__(status_code=status_code, detail=detail, data=data)
 
 
-class InvalidError(DomainException):
+class InvalidError(DomainError):
     """
     Invalid error
     """
@@ -79,7 +86,7 @@ class InvalidError(DomainException):
         super().__init__(status_code=status_code, detail=detail, data=data)
 
 
-class ServerError(DomainException):
+class ServerError(DomainError):
     """
     Server error
     """
@@ -88,6 +95,20 @@ class ServerError(DomainException):
         self,
         status_code: int = HTTP_500_INTERNAL_SERVER_ERROR,
         detail: str = "Server error",
+        data: str | None = None,
+    ):
+        super().__init__(status_code=status_code, detail=detail, data=data)
+
+
+class BearerTokenError(DomainError):
+    """
+    BearerToken error
+    """
+
+    def __init__(
+        self,
+        status_code: int = HTTP_400_BAD_REQUEST,
+        detail: str = "The token standard is not Bearer",
         data: str | None = None,
     ):
         super().__init__(status_code=status_code, detail=detail, data=data)

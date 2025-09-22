@@ -9,15 +9,15 @@ class UserRepo(ABC):
     """
 
     @abstractmethod
-    async def create(self, user: User) -> User:
+    async def add(self, user: User) -> User:
         """
-        Creates user
+        adds user
         Returns:
             User
         """
 
     @abstractmethod
-    async def find_one(self, **kwargs) -> User | None:
+    async def find_one(self, where, **kwargs) -> User | None:
         """
         Finds user
         Returns:

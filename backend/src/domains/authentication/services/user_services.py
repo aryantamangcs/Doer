@@ -1,7 +1,5 @@
-import bcrypt
-
-from ..entities import User
 from ..repositories import UserRepo
+from .password_hasher import PasswordHasher
 
 
 class UserServices:
@@ -36,31 +34,22 @@ class UserServices:
             return False
         return True
 
-    def hash_password(self, password: str) -> str:
+    def hash_password(self, password: str, hasher: PasswordHasher) -> str:
         """
-        Hashes the password using bcrypt
+        Hashes the password and returns the hashed password
+        """
+        return hasher.hash(password)
+
+    def verify_password(
+        self, hashed_password: str, password: str, hasher: PasswordHasher
+    ) -> bool:
+        """
+        Verifies the password
+        Args:
+            hashed_password
+            password
         Returns:
-            It returns the hashed password
+            True if password is verified else False
         """
-        byte_password = password.encode()
-        hashed_password = bcrypt.hashpw(byte_password, bcrypt.gensalt())
-        return hashed_password.decode()
 
-    async def verify_password(self, hashed_password: str, password: str) -> bool:
-        """
-        Checks if the hashed_password or password is same or not
-        Returns :
-            True if password is verified
-            Else False
-        """
-        if bcrypt.checkpw(password.encode(), hashed_password.encode()):
-            return True
-
-        return False
-
-    async def list_users(self) -> list[User]:
-        """
-        List all the users
-        """
-        all_users = await self.user_repo.get_all()
-        return all_users
+        return hasher.verify(hashed_password, password)

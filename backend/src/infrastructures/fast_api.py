@@ -2,6 +2,7 @@ from fastapi import APIRouter, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from src.applications.authentication.router import auth_router
+from src.infrastructures.middleware import AuthMiddleware
 
 from .exception_handler import add_exceptions_handler
 
@@ -30,5 +31,6 @@ def create_app():
         allow_methods=["*"],  # allow all HTTP methods (GET, POST, etc.)
         allow_headers=["*"],  # allow all headers
     )
+    app.add_middleware(AuthMiddleware, exclude_path=["/api/auth/check-user"])
 
     return app
