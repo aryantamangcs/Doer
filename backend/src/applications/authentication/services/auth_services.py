@@ -181,6 +181,11 @@ class AuthServices:
                 raise UsernameExistsError()
             return username
 
+    async def validate_refresh_token(self, refresh_token: str) -> dict[str, Any]:
+        """
+        Validates the refresh token and returns new access token
+        """
+
 
 def get_auth_services() -> AuthServices:
     """

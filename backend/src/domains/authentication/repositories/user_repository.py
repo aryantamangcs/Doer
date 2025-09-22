@@ -17,7 +17,7 @@ class UserRepo(ABC):
         """
 
     @abstractmethod
-    async def find_one(self, **kwargs) -> User | None:
+    async def find_one(self, where, **kwargs) -> User | None:
         """
         Finds user
         Returns:

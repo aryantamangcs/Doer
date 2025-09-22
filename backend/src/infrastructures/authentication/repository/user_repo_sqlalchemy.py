@@ -37,12 +37,26 @@ class UserRepoSqlAlchemy(UserRepo):
             user.id = new_user.id
             return user
 
-    async def find_one(self, **kwargs) -> User | None:
+    async def find_one(self, where, **kwargs) -> User | None:
         """
         Finds user
         Returns:
             User if found else None
         """
+        query = select(UserModel)
+        if not where:
+            raise ValueError("Where is missing")
+
+        for attr, value in where.items():
+            column = getattr(UserModel, attr)
+            query = query.where(column == value)
+
+        async with self.get_session() as session:
+            result = await session.execute(query)
+            if not result:
+                return None
+            user = result.scalar()
+            return User(**user)
 
     async def filter(self, **kwargs) -> list[User]:
         """

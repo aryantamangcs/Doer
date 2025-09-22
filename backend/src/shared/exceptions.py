@@ -1,4 +1,3 @@
-import logging
 from typing import Optional
 
 from starlette.status import (
@@ -8,7 +7,9 @@ from starlette.status import (
     HTTP_500_INTERNAL_SERVER_ERROR,
 )
 
-logger = logging.getLogger(__name__)
+from src.shared.logger.ansi_logger import get_logger
+
+logger = get_logger("doer")
 
 
 class DomainError(Exception):
@@ -94,6 +95,20 @@ class ServerError(DomainError):
         self,
         status_code: int = HTTP_500_INTERNAL_SERVER_ERROR,
         detail: str = "Server error",
+        data: str | None = None,
+    ):
+        super().__init__(status_code=status_code, detail=detail, data=data)
+
+
+class BearerTokenError(DomainError):
+    """
+    BearerToken error
+    """
+
+    def __init__(
+        self,
+        status_code: int = HTTP_400_BAD_REQUEST,
+        detail: str = "The token standard is not Bearer",
         data: str | None = None,
     ):
         super().__init__(status_code=status_code, detail=detail, data=data)
