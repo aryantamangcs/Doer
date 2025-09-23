@@ -31,6 +31,15 @@ def create_app():
         allow_methods=["*"],  # allow all HTTP methods (GET, POST, etc.)
         allow_headers=["*"],  # allow all headers
     )
-    app.add_middleware(AuthMiddleware, exclude_path=["/api/auth/check-user"])
+    app.add_middleware(
+        AuthMiddleware,
+        exclude_path=[
+            "/api/auth/login",
+            "/api/auth/signup",
+            "/api/auth/check-user",
+            "/docs",
+            "/openapi.json",
+        ],
+    )
 
     return app
