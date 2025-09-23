@@ -75,3 +75,11 @@ class TokenPayloadSchema(BaseModel):
     identifier: str
 
     model_config = {"from_attributes": True}
+
+
+class RefreshTokenSchema(BaseModel):
+    """
+    Schema to  validate payload in refresh token route
+    """
+
+    refresh_token: str = Field(..., title="Refresh token for new access token")

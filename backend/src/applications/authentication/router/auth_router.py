@@ -1,10 +1,15 @@
 import logging
 
 from fastapi import APIRouter, Depends, Query
+from fastapi.requests import Request
 from pydantic import EmailStr
 from starlette.status import HTTP_200_OK, HTTP_201_CREATED
 
-from src.applications.authentication.schemas.auth_schemas import LoginSchema
+from src.applications.authentication.schemas.auth_schemas import (
+    LoginSchema,
+    RefreshTokenSchema,
+)
+from src.infrastructures.common.context import current_user
 from src.shared.response import CustomResponse as cr
 from src.shared.response import CustomResponseSchema
 
@@ -57,8 +62,11 @@ async def login(payload: LoginSchema, auth_service=Depends(get_auth_services)):
     )
 
 
-@router.post("/refresh-token", response_model=CustomResponseSchema)
-def refresh_token():
+@router.get("/refresh-token", response_model=CustomResponseSchema)
+async def refresh_token_fetch(
+    refresh_token: str = Query(..., title="Refresh token to fetch new access token"),
+    auth_service=Depends(get_auth_services),
+):
     """
     Fetches the access token from the provided Refresh token in Authorization Header with Bearere Standard
 
@@ -69,6 +77,15 @@ def refresh_token():
         RefreshTokenExpiredError if the refresh token has expired
         InvalidRefreshTokenError if the provided refresh token is not valid
     """
+    user = current_user.get()
+
+    payload = await auth_service.validate_refresh_token(refresh_token, user)
+
+    return cr.success(
+        message="Successfully refetched refresh token",
+        data=payload,
+        status_code=HTTP_201_CREATED,
+    )
 
 
 @router.get("/check-user", response_model=CustomResponseSchema)
