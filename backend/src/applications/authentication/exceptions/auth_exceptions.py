@@ -76,3 +76,17 @@ class RefreshTokenError(DomainError):
         status_code: int = HTTP_500_INTERNAL_SERVER_ERROR,
     ):
         super().__init__(status_code=status_code, detail=detail, data=data)
+
+
+class RefreshTokenExpiredError(DomainError):
+    """
+    RefreshToken Expired Error
+    """
+
+    def __init__(
+        self,
+        detail: str = "Refresh Token has expired",
+        data: str | None = None,
+        status_code: int = HTTP_400_BAD_REQUEST,
+    ):
+        super().__init__(status_code=status_code, detail=detail, data=data)
