@@ -1,7 +1,5 @@
-from os import path
 from typing import Any
 
-from fastapi import FastAPI
 from fastapi.requests import Request
 from fastapi.responses import Response
 from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoint
@@ -11,6 +9,7 @@ from src.domains.authentication.entities.user_entity import User
 from src.infrastructures.authentication.repository.user_repo_sqlalchemy import (
     UserRepoSqlAlchemy,
 )
+from src.infrastructures.common.context import current_user
 from src.shared.exceptions import BearerTokenError, NotFoundError
 from src.shared.response import CustomResponse as cr
 
@@ -49,7 +48,10 @@ class AuthMiddleware(BaseHTTPMiddleware):
 
             user = await self.decode_token(token)
 
+            # saving in request and in context
             request.state.user = user
+
+            current_user.set(user)
 
             return await call_next(request)
         except Exception as e:  # pylint: disable=broad-except
