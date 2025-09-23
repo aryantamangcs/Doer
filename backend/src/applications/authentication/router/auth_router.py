@@ -84,7 +84,7 @@ async def refresh_token_fetch(
     return cr.success(
         message="Successfully refetched refresh token",
         data=payload,
-        status_code=HTTP_201_CREATED,
+        status_code=HTTP_200_OK,
     )
 
 
