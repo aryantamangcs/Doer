@@ -1,7 +1,8 @@
 from datetime import datetime
 from typing import Any
 
-from pydantic import EmailStr, ValidationError
+from pydantic import EmailStr
+from starlette.status import HTTP_400_BAD_REQUEST, HTTP_404_NOT_FOUND
 
 from src.applications.authentication.schemas.auth_schemas import (
     CheckUserCredentialsSchema,
@@ -31,6 +32,7 @@ from ..exceptions.auth_exceptions import (
     EmailExistsError,
     LoginInvalidError,
     RefreshTokenError,
+    RefreshTokenExpiredError,
     UsernameExistsError,
 )
 
@@ -181,10 +183,28 @@ class AuthServices:
                 raise UsernameExistsError()
             return username
 
-    async def validate_refresh_token(self, refresh_token: str) -> dict[str, Any]:
+    async def validate_refresh_token(
+        self, refresh_token: str, user: dict[str, Any]
+    ) -> dict[str, Any]:
         """
         Validates the refresh token and returns new access token
         """
+        r_t = await self.refresh_token_repo.find_one(
+            where={"user_id": user["id"], "refresh_token": refresh_token}
+        )
+
+        if not r_t:
+            raise RefreshTokenError(
+                detail="Invalid refresh token", status_code=HTTP_400_BAD_REQUEST
+            )
+
+        if datetime.timestamp(r_t.expires_at) < datetime.now().timestamp():
+            raise RefreshTokenExpiredError()
+
+        user_details = TokenPayloadSchema(**user)
+        access_token, _ = self.get_access_refresh_token(user_details.model_dump())
+
+        return {"access_token": access_token}
 
 
 def get_auth_services() -> AuthServices:

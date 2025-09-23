@@ -40,3 +40,26 @@ class RefreshTokenRepoSQLAchemy:
             if result:
                 return result.refresh_token
             return None
+
+    async def find_one(self, where, **kwargs) -> RefreshTokenModel | None:
+        """
+        Finds refresh_token
+        Returns:
+            User if found else None
+        """
+        query = select(RefreshTokenModel)
+        if not where:
+            raise ValueError("Where is missing")
+
+        for attr, value in where.items():
+            column = getattr(RefreshTokenModel, attr)
+            query = query.where(column == value)
+
+        async with self.get_session() as session:
+            result = await session.execute(query)
+            token = result.scalar()
+
+            if not token:
+                return None
+
+            return token

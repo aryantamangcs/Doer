@@ -53,10 +53,19 @@ class UserRepoSqlAlchemy(UserRepo):
 
         async with self.get_session() as session:
             result = await session.execute(query)
-            if not result:
-                return None
             user = result.scalar()
-            return User(**user)
+
+            if not user:
+                return None
+            return User(
+                id=user.id,
+                first_name=user.first_name,
+                last_name=user.last_name,
+                email=user.email,
+                _password=user.password,
+                username=user.username,
+                identifier=str(user.identifier),
+            )
 
     async def filter(self, **kwargs) -> list[User]:
         """
