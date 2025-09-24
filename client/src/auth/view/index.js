@@ -1,3 +1,3 @@
-export * from "./sign-in-view";
+export * from "./signin-view";
 
-export * from "./sign-up-view";
+export * from "./signup-view";
