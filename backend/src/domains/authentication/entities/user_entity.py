@@ -2,8 +2,6 @@ from dataclasses import dataclass
 from typing import Optional
 from uuid import uuid4
 
-from src.shared.exceptions import DomainError
-
 
 @dataclass
 class User:
@@ -78,7 +76,7 @@ class User:
             instance of User class
         """
         if not username or not email:
-            raise DomainError("Username and email is required.")
+            raise ValueError("Username and email is required.")
 
         return cls(
             id=None,  # will be overriden by the repository
