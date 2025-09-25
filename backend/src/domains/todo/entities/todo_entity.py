@@ -12,8 +12,23 @@ class ListMember:
     '''
 
     user_id : int
+    todo_list_id : int
     role : TodoListMemberRoleEnum = TodoListMemberRoleEnum.MEMBER
     joined_at : datetime = field(default_factory=datetime.now)
+    deleted_at  : datetime | None = None
+
+    @classmethod
+    def create(cls,user_id:int,todo_list_id:int,role=TodoListMemberRoleEnum.MEMBER):
+        '''
+        Creates the list member
+        '''
+        return cls(user_id=user_id,todo_list_id=todo_list_id,role=role)
+    
+    def delete(self):
+        '''
+        Deletes the list member
+        '''
+        self.deleted_at = datetime.now()
 
 @dataclass
 class TodoList:
@@ -56,35 +71,6 @@ class TodoList:
             None
         '''
         self.owner_id = owner_id
-
-    def add_member(self,user_id : int,role : TodoListMemberRoleEnum = TodoListMemberRoleEnum.MEMBER) -> None:
-        '''
-        Adds member to the todo list
-        Args:
-            user_id to be added
-        Raise:
-            Already error
-        Returns:
-            None
-        '''
-        if any(member.user_id == user_id for member in self.members):
-            raise ValueError("User is already a member in this todo list")
-        self.members.append(ListMember(user_id=user_id,role=role))
-
-    def remove_member(self,user_id : int) -> None:
-        '''
-        Removes member from the todo list
-        Args:
-            user_id to be removed
-        Raise:
-            Not found error
-        Returns:
-            None
-        '''
-        if any(member.user_id == user_id for member in self.members):
-            self.members = [member for member in self.members if member.user_id != user_id]
-            return
-        raise ValueError("User doesn't exist in this todo list to be removed")
 
 
     def delete(self):

@@ -1,6 +1,6 @@
 from src.domains.authentication.repositories.user_repository import UserRepo
 
-from ..entities.todo_entity import TodoList
+from ..entities.todo_entity import ListMember, TodoList
 from ..repositories.todo_list_repo import TodoListRepository
 
 
@@ -9,9 +9,9 @@ class TodoListDomainServices:
     List of methods and services for todo list
     """
 
-    def __init__(self, repo: TodoListRepository):
+    def __init__(self, repo: TodoListRepository, user_repo: UserRepo):
         self.repo = repo
-        self.user_repo = UserRepo()
+        self.user_repo = user_repo
 
     async def create_todo_list(self, name: str, owner_id: int) -> TodoList:
         """
@@ -29,12 +29,14 @@ class TodoListDomainServices:
         todo_list = await self.repo.get_by_id(id=todo_list_id)
         if not todo_list:
             raise ValueError("Todo list not found")
+        if not todo_list.id:
+            raise ValueError("Todo list id is none")
 
         new_member = self.user_repo.get_by_id(id=user_id)
         if not new_member:
             raise ValueError("Member to be added not found")
 
-        todo_list.add_member(user_id)
+        ListMember.create(user_id=user_id, todo_list_id=todo_list.id)
         await self.repo.update(todo_list)
 
     async def delete_member(self, todo_list_id: int, user_id: int) -> None:
@@ -46,6 +48,8 @@ class TodoListDomainServices:
         todo_list = await self.repo.get_by_id(id=todo_list_id)
         if not todo_list:
             raise ValueError("Todo list not found")
+        if not todo_list.id:
+            raise ValueError("Todo list id is none")
 
         new_member = self.user_repo.get_by_id(id=user_id)
         if not new_member:
@@ -58,5 +62,4 @@ class TodoListDomainServices:
         if not member_exist:
             raise ValueError("User is not a member of the todo list")
 
-        todo_list.members.remove(member_exist[0])
         await self.repo.update(todo_list)
