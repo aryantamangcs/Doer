@@ -2,12 +2,25 @@ from fastapi import FastAPI
 from fastapi.exceptions import RequestValidationError
 from fastapi.requests import Request
 from starlette.status import (
+    HTTP_201_CREATED,
+    HTTP_400_BAD_REQUEST,
+    HTTP_404_NOT_FOUND,
+    HTTP_409_CONFLICT,
     HTTP_422_UNPROCESSABLE_ENTITY,
     HTTP_500_INTERNAL_SERVER_ERROR,
 )
 
 from src.shared.exceptions import DomainError
 from src.shared.response import CustomResponse as cr
+
+DOMAIN_TO_HTTP = {
+    "domain_error": HTTP_400_BAD_REQUEST,
+    "not_found": HTTP_404_NOT_FOUND,
+    "conflict_error": HTTP_409_CONFLICT,
+    "create_error": HTTP_201_CREATED,
+    "invalid_error": HTTP_400_BAD_REQUEST,
+    "server_error": HTTP_500_INTERNAL_SERVER_ERROR,
+}
 
 
 async def global_exception_handler(request: Request, exc: Exception):
@@ -19,7 +32,7 @@ async def global_exception_handler(request: Request, exc: Exception):
         detail = exc.errors()
 
     if isinstance(exc, DomainError):
-        status_code = exc.status_code
+        status_code = DOMAIN_TO_HTTP.get(getattr(exc, "code"))
         detail = exc.detail
         data = exc.data
 
