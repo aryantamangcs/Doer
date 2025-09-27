@@ -1,5 +1,6 @@
 from src.domains.todo.entities.todo_item_entity import TodoItem
 from src.domains.todo.enums.todo_enums import TodoStatusEnum
+from src.shared.exceptions import CreateError, NotFoundError
 
 from ..enums import TodoStatusEnum
 from ..repositories.todo_item_repo import TodoItemRepository
@@ -29,7 +30,7 @@ class TodoItemDomainServices:
         todo_list = self.todo_list_repo.get_by_id(id=todo_list_id)
 
         if not todo_list:
-            raise ValueError("Todo list id not found")
+            raise NotFoundError("Todo list id not found")
 
         new_item = TodoItem.create(
             todo_list_id=todo_list_id,
@@ -38,7 +39,13 @@ class TodoItemDomainServices:
             description=description,
             owner_id=owner_id,
         )
-        return await self.repo.add(new_item)
+        try:
+            data = await self.repo.add(new_item)
+            return data
+        except Exception as e:
+            raise CreateError(
+                detail="Error while creating todo item", data=str(e)
+            ) from e
 
     async def delete(self, todo_id) -> None:
         """

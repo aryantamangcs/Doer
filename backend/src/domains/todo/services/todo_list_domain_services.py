@@ -1,5 +1,6 @@
 from src.domains.authentication.repositories.user_repository import UserRepo
 from src.domains.todo.services.list_member_domain_services import ListMemberServices
+from src.shared.exceptions import NotFoundError, ServerError
 
 from ..entities.todo_entity import ListMember, TodoList
 from ..repositories.todo_list_repo import TodoListRepository
@@ -35,13 +36,13 @@ class TodoListDomainServices:
         """
         todo_list = await self.repo.get_by_id(id=todo_list_id)
         if not todo_list:
-            raise ValueError("Todo list not found")
+            raise NotFoundError("Todo list not found")
         if not todo_list.id:
-            raise ValueError("Todo list id is none")
+            raise ServerError("Todo list id is none")
 
         new_member = self.user_repo.get_by_id(id=user_id)
         if not new_member:
-            raise ValueError("Member to be added not found")
+            raise NotFoundError("Member to be added not found")
 
         new_list_member = await self.list_member_service.add_member(
             user_id=user_id, todo_list_id=todo_list.id
@@ -56,13 +57,13 @@ class TodoListDomainServices:
         """
         todo_list = await self.repo.get_by_id(id=todo_list_id)
         if not todo_list:
-            raise ValueError("Todo list not found")
+            raise NotFoundError("Todo list not found")
         if not todo_list.id:
-            raise ValueError("Todo list id is none")
+            raise ServerError("Todo list id is none")
 
         new_member = self.user_repo.get_by_id(id=user_id)
         if not new_member:
-            raise ValueError("Member to be deleted not found")
+            raise NotFoundError("Member to be deleted not found")
 
         await self.list_member_service.remove_member(
             user_id=user_id, todo_list_id=todo_list.id
