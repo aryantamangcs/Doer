@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field, field_serializer
 
@@ -21,6 +22,7 @@ class TodoListOutSchema(BaseModel):
     name: str
     created_at: datetime
     identifier: str
+    owner_id: int
 
     @field_serializer("created_at")
     def datetime_serializer(self, value):
