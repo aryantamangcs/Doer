@@ -5,7 +5,7 @@ from starlette.status import (
     HTTP_500_INTERNAL_SERVER_ERROR,
 )
 
-from src.shared.exceptions import ConflictError, DomainError, InvalidError
+from src.shared.exceptions import ConflictError, DomainError, InvalidError, ServerError
 
 
 class CheckUserError(DomainError):
@@ -17,9 +17,8 @@ class CheckUserError(DomainError):
         self,
         detail: str = "Check User Error",
         data: str | None = None,
-        status_code: int = HTTP_422_UNPROCESSABLE_ENTITY,
     ):
-        super().__init__(status_code=status_code, detail=detail, data=data)
+        super().__init__(detail=detail, data=data)
 
 
 class EmailExistsError(ConflictError):
@@ -31,9 +30,8 @@ class EmailExistsError(ConflictError):
         self,
         detail: str = "Email already exists",
         data: str | None = None,
-        status_code: int = HTTP_409_CONFLICT,
     ):
-        super().__init__(status_code=status_code, detail=detail, data=data)
+        super().__init__(detail=detail, data=data)
 
 
 class UsernameExistsError(ConflictError):
@@ -45,9 +43,8 @@ class UsernameExistsError(ConflictError):
         self,
         detail: str = "Username already exists",
         data: str | None = None,
-        status_code: int = HTTP_409_CONFLICT,
     ):
-        super().__init__(status_code=status_code, detail=detail, data=data)
+        super().__init__(detail=detail, data=data)
 
 
 class LoginInvalidError(InvalidError):
@@ -59,12 +56,11 @@ class LoginInvalidError(InvalidError):
         self,
         detail: str = "Invalid credentials",
         data: str | None = None,
-        status_code: int = HTTP_400_BAD_REQUEST,
     ):
-        super().__init__(status_code=status_code, detail=detail, data=data)
+        super().__init__(detail=detail, data=data)
 
 
-class RefreshTokenError(DomainError):
+class RefreshTokenError(ServerError):
     """
     RefreshToken Error
     """
@@ -73,9 +69,8 @@ class RefreshTokenError(DomainError):
         self,
         detail: str = "Refresh Token Error",
         data: str | None = None,
-        status_code: int = HTTP_500_INTERNAL_SERVER_ERROR,
     ):
-        super().__init__(status_code=status_code, detail=detail, data=data)
+        super().__init__(detail=detail, data=data)
 
 
 class RefreshTokenExpiredError(DomainError):
@@ -86,7 +81,5 @@ class RefreshTokenExpiredError(DomainError):
     def __init__(
         self,
         detail: str = "Refresh Token has expired",
-        data: str | None = None,
-        status_code: int = HTTP_400_BAD_REQUEST,
     ):
-        super().__init__(status_code=status_code, detail=detail, data=data)
+        super().__init__(detail=detail, data=data)
