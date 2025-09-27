@@ -16,7 +16,7 @@ from src.shared.response import CustomResponseSchema
 from ..schemas import SignUpSchema
 from ..services.auth_services import get_auth_services
 
-router = APIRouter(prefix="/auth")
+router = APIRouter(prefix="/auth", tags=["Auth"])
 
 logger = logging.getLogger("doer_logger")
 
