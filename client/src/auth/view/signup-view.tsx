@@ -1,8 +1,11 @@
 "use client";
 
 import { useForm } from "react-hook-form";
+import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+
+import { Eye, EyeOff } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -50,7 +53,27 @@ export function SignupView() {
   );
 }
 
+type PasswordVisibility = {
+  showPassword: boolean;
+  showConfirmPassword: boolean;
+};
+
 function SignupForm() {
+  const [passwordVisibility, setPasswordVisibility] =
+    useState<PasswordVisibility>({
+      showPassword: false,
+      showConfirmPassword: false,
+    });
+
+  const { showPassword, showConfirmPassword } = passwordVisibility;
+
+  const handlePasswordVisibility = (key: string, value: boolean) => {
+    setPasswordVisibility((prev) => ({
+      ...prev,
+      [key]: !value,
+    }));
+  };
+
   const {
     register,
     handleSubmit,
@@ -176,19 +199,25 @@ function SignupForm() {
                 Password
               </Label>
 
-              <Input
-                id="password"
-                type="password"
-                {...register("password")}
-                aria-invalid={!!errors.password}
-                className="rounded-none border-0 shadow-none border-b border-gray-300 focus-visible:ring-0 focus:border-black"
-              />
+              <div className="relative">
+                <Input
+                  id="password"
+                  type={showPassword ? "text" : "password"}
+                  {...register("password")}
+                  aria-invalid={!!errors.password}
+                  className="rounded-none border-0 shadow-none border-b border-gray-300 focus-visible:ring-0 focus:border-black pr-10"
+                />
 
-              {errors.password && (
-                <p className="text-red-500 text-sm">
-                  {errors.password.message}
-                </p>
-              )}
+                <button
+                  type="button"
+                  onClick={() =>
+                    handlePasswordVisibility("showPassword", showPassword)
+                  }
+                  className="absolute inset-y-0 right-0 flex items-center text-gray-500 hover:text-black"
+                >
+                  {showPassword ? <Eye size={18} /> : <EyeOff size={18} />}
+                </button>
+              </div>
             </div>
 
             <div className="flex flex-col gap-1">
@@ -196,13 +225,32 @@ function SignupForm() {
                 Confirm Password
               </Label>
 
-              <Input
-                id="confirmPassword"
-                type="password"
-                {...register("confirmPassword")}
-                aria-invalid={!!errors.confirmPassword}
-                className="rounded-none border-0 shadow-none border-b border-gray-300 focus-visible:ring-0 focus:border-black"
-              />
+              <div className="relative">
+                <Input
+                  id="password"
+                  type={showConfirmPassword ? "text" : "password"}
+                  {...register("password")}
+                  aria-invalid={!!errors.password}
+                  className="rounded-none border-0 shadow-none border-b border-gray-300 focus-visible:ring-0 focus:border-black pr-10"
+                />
+
+                <button
+                  type="button"
+                  onClick={() =>
+                    handlePasswordVisibility(
+                      "showConfirmPassword",
+                      showConfirmPassword
+                    )
+                  }
+                  className="absolute inset-y-0 right-0 flex items-center text-gray-500 hover:text-black"
+                >
+                  {showConfirmPassword ? (
+                    <Eye size={18} />
+                  ) : (
+                    <EyeOff size={18} />
+                  )}
+                </button>
+              </div>
 
               {errors.confirmPassword && (
                 <p className="text-red-500 text-sm">
