@@ -25,6 +25,8 @@ class TodoListRepoSqlAlchemy(TodoListRepository):
         async with self.get_session() as session:
             new_todo_list = TodoListModel(
                 name=todo_list.name,
+                identifier=todo_list.identifier,
+                owner_id=todo_list.owner_id,
             )
             session.add(new_todo_list)
             await session.commit()

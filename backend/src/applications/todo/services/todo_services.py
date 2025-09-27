@@ -37,7 +37,7 @@ class TodoServices:
         """
         user = current_user.get()
         todo_list = await self.todo_list_domain_services.create_todo_list(
-            name=payload.name, owner_id=user.id
+            name=payload.name, owner_id=user["id"]
         )
         return todo_list
 
