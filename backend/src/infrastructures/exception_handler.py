@@ -29,9 +29,10 @@ async def global_exception_handler(request: Request, exc: Exception):
     """
     if isinstance(exc, RequestValidationError):
         status_code = HTTP_422_UNPROCESSABLE_ENTITY
-        detail = exc.errors()
+        detail = "Validation error"
+        data = exc.errors()
 
-    if isinstance(exc, DomainError):
+    elif isinstance(exc, DomainError):
         status_code = DOMAIN_TO_HTTP.get(getattr(exc, "code"))
         detail = exc.detail
         data = exc.data
