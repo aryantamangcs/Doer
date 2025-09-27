@@ -1,11 +1,13 @@
 "use client";
 
-import { useForm } from "react-hook-form";
-import { useState } from "react";
+import { useForm, useWatch } from "react-hook-form";
+import { useState, useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { useDebounce } from "minimal-shared";
 
 import { Eye, EyeOff } from "lucide-react";
+import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,7 +15,7 @@ import { Label } from "@/components/ui/label";
 
 import { Container } from "@/components/common";
 
-import { signUp } from "@/api/auth";
+import { signUp, checkUserAvailability } from "@/api/auth";
 
 import { AuthPrompt, InfoPanel } from "../components";
 
@@ -58,12 +60,22 @@ type PasswordVisibility = {
   showConfirmPassword: boolean;
 };
 
+type UserAvailability = {
+  username: boolean;
+  email: boolean;
+};
+
 function SignupForm() {
   const [passwordVisibility, setPasswordVisibility] =
     useState<PasswordVisibility>({
       showPassword: false,
       showConfirmPassword: false,
     });
+
+  const [userAvailability, setUserAvailability] = useState<UserAvailability>({
+    username: true,
+    email: true,
+  });
 
   const { showPassword, showConfirmPassword } = passwordVisibility;
 
@@ -74,13 +86,69 @@ function SignupForm() {
     }));
   };
 
+  const onUserAvailability = (key: string, value: boolean) => {
+    setUserAvailability((prev) => ({
+      ...prev,
+      [key]: value,
+    }));
+  };
+
   const {
+    control,
+    reset,
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
   } = useForm<SignUpFormValues>({
     resolver: zodResolver(signUpSchema),
   });
+
+  console.log(errors);
+
+  const [username, email] = useWatch({
+    control,
+    name: ["username", "email"],
+  });
+
+  const debouncedUsername = useDebounce(username);
+
+  const debouncedEmail = useDebounce(email);
+
+  useEffect(() => {
+    if (!debouncedUsername) {
+      return;
+    }
+
+    const checkUsernameAvailability = async () => {
+      try {
+        await checkUserAvailability(`?username=${debouncedUsername}`);
+      } catch (error: any) {
+        console.log(error);
+
+        onUserAvailability("username", error.success);
+      }
+    };
+
+    checkUsernameAvailability();
+  }, [debouncedUsername]);
+
+  useEffect(() => {
+    if (!debouncedEmail) {
+      return;
+    }
+
+    const checkEmailAvailability = async () => {
+      try {
+        await checkUserAvailability(`?email=${debouncedEmail}`);
+      } catch (error: any) {
+        console.log(error);
+
+        onUserAvailability("email", error.success);
+      }
+    };
+
+    checkEmailAvailability();
+  }, [debouncedEmail]);
 
   const onSubmit = async (data: SignUpFormValues) => {
     try {
@@ -91,6 +159,10 @@ function SignupForm() {
         email: data.email,
         password: data.password,
       });
+
+      reset();
+
+      toast.success("Registered successfully!");
 
       console.log("Sign up success:", response);
     } catch (error) {
@@ -174,6 +246,12 @@ function SignupForm() {
                   {errors.username.message}
                 </p>
               )}
+
+              {!userAvailability.username && (
+                <p className="text-red-500 text-xs">
+                  {username} is already taken.
+                </p>
+              )}
             </div>
 
             <div className="flex flex-col gap-1">
@@ -191,6 +269,12 @@ function SignupForm() {
 
               {errors.email && (
                 <p className="text-red-500 text-sm">{errors.email.message}</p>
+              )}
+
+              {!userAvailability.email && (
+                <p className="text-red-500 text-xs">
+                  {email} is already taken.
+                </p>
               )}
             </div>
 
@@ -229,7 +313,7 @@ function SignupForm() {
                 <Input
                   id="password"
                   type={showConfirmPassword ? "text" : "password"}
-                  {...register("password")}
+                  {...register("confirmPassword")}
                   aria-invalid={!!errors.password}
                   className="rounded-none border-0 shadow-none border-b border-gray-300 focus-visible:ring-0 focus:border-black pr-10"
                 />

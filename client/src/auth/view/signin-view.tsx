@@ -6,6 +6,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import { Eye, EyeOff } from "lucide-react";
+import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -50,6 +51,7 @@ function SigninForm() {
 
   const {
     register,
+    reset,
     handleSubmit,
     formState: { errors, isSubmitting },
   } = useForm<SignInFormValues>({
@@ -59,7 +61,10 @@ function SigninForm() {
   const onSubmit = async (data: SignInFormValues) => {
     try {
       const response = await signIn(data);
-      console.log("Login success:", response);
+
+      toast.success("Logged in successfully!");
+
+      reset();
     } catch (error) {
       console.error("Login failed:", error);
     }
