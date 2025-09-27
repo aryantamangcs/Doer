@@ -2,6 +2,7 @@ from fastapi import APIRouter, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from src.applications.authentication.router import auth_router
+from src.applications.todo.router import router as todo_router
 from src.infrastructures.middleware import AuthMiddleware
 
 from .exception_handler import add_exceptions_handler
@@ -17,6 +18,7 @@ def create_app():
 
     main_router = APIRouter(prefix="/api")
     main_router.include_router(auth_router)
+    main_router.include_router(todo_router)
 
     app.include_router(main_router)
 
