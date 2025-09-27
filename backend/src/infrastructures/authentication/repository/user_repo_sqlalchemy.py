@@ -81,6 +81,11 @@ class UserRepoSqlAlchemy(UserRepo):
             List of users
         """
 
+    async def get_by_id(self, id: int) -> User | None:
+        """
+        gets user by id
+        """
+
     async def update(self, user: User, **kwargs) -> User:
         """
         Finds user

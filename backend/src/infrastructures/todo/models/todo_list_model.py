@@ -3,7 +3,6 @@ from datetime import datetime
 from sqlalchemy import DateTime, ForeignKey, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from src.infrastructures.authentication.models.user_model import UserModel
 from src.infrastructures.common.models import BaseModel
 from src.infrastructures.common.timestamp_mixin import TimeStampMixin
 
@@ -44,4 +43,4 @@ class TodoListModel(BaseModel, TimeStampMixin):
     members: Mapped[list[ListMemberModel]] = relationship(back_populates="todo_list")
 
     # relationships
-    owner: Mapped[UserModel] = relationship(back_populates="todo_lists")
+    owner: Mapped["UserModel"] = relationship(back_populates="todo_lists")
