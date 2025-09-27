@@ -1,6 +1,7 @@
 from src.domains.todo.entities.todo_entity import ListMember
 from src.domains.todo.enums.todo_enums import TodoListMemberRoleEnum
 from src.domains.todo.repositories.list_member_repo import ListMemberRepo
+from src.shared.exceptions import NotFoundError
 
 
 class ListMemberServices:
@@ -39,5 +40,5 @@ class ListMemberServices:
             where={"user_id": user_id, "todo_list_id": todo_list_id}
         )
         if not member:
-            raise ValueError("Member not found")
+            raise NotFoundError("Member not found")
         await self.repo.delete(member)
