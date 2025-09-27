@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class CreateTodoListSchema(BaseModel):
@@ -8,4 +8,4 @@ class CreateTodoListSchema(BaseModel):
 
     name: str = Field(..., title="Name of the todo list")
 
-    model_config = {"extra": "forbid"}
+    model_config = ConfigDict(extra="forbid")
