@@ -47,7 +47,7 @@ class TodoItemDomainServices:
                 detail="Error while creating todo item", data=str(e)
             ) from e
 
-    async def delete(self, todo_id) -> None:
+    async def delete_todo_item(self, todo_id) -> None:
         """
         Delete the todo item
         """
