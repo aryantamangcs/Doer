@@ -17,7 +17,7 @@ DOMAIN_TO_HTTP = {
     "domain_error": HTTP_400_BAD_REQUEST,
     "not_found": HTTP_404_NOT_FOUND,
     "conflict_error": HTTP_409_CONFLICT,
-    "create_error": HTTP_201_CREATED,
+    "create_error": HTTP_500_INTERNAL_SERVER_ERROR,
     "invalid_error": HTTP_400_BAD_REQUEST,
     "server_error": HTTP_500_INTERNAL_SERVER_ERROR,
 }
