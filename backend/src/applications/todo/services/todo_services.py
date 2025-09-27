@@ -6,6 +6,9 @@ from src.infrastructures.authentication.repository.user_repo_sqlalchemy import (
     UserRepoSqlAlchemy,
 )
 from src.infrastructures.common.context import current_user
+from src.infrastructures.todo.repositories.list_member_repo_sqlalchemy import (
+    ListMemberRepoSqlAlchemy,
+)
 from src.infrastructures.todo.repositories.todo_list_repo_sqlalchemy import (
     TodoListRepoSqlAlchemy,
 )
@@ -45,7 +48,8 @@ def get_todo_services() -> TodoServices:
     """
     todo_list_repo = TodoListRepoSqlAlchemy()
     user_repo = UserRepoSqlAlchemy()
-    list_member_service = ListMemberServices()
+    list_member_repo = ListMemberRepoSqlAlchemy()
+    list_member_service = ListMemberServices(repo=list_member_repo)
     todo_list_domain_services = TodoListDomainServices(
         repo=todo_list_repo,
         user_repo=user_repo,

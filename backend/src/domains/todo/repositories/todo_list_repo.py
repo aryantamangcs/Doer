@@ -16,7 +16,7 @@ class TodoListRepository(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    async def find_one(self, where: dict | None = None, **kwargs):
+    async def find_one(self, where: dict | None = None, **kwargs) -> TodoList | None:
         """
         Finds one todo list
         """
