@@ -37,9 +37,22 @@ class TodoServices:
         """
         user = current_user.get()
         todo_list = await self.todo_list_domain_services.create_todo_list(
-            name=payload.name, owner_id=user.id
+            name=payload.name, owner_id=user["id"]
         )
         return todo_list
+
+    async def list_todos(self) -> list[TodoList]:
+        """
+        lists all the todo list
+        """
+        all_todo_lists = await self.todo_list_domain_services.list_all_todo_list()
+        return all_todo_lists
+
+    async def delete_todo_list(self, identifier: str):
+        """
+        delete todo list
+        """
+        await self.todo_list_domain_services.delete_todo_list(identifier=identifier)
 
 
 def get_todo_services() -> TodoServices:

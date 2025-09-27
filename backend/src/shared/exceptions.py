@@ -68,6 +68,21 @@ class CreateError(DomainError):
         super().__init__(detail=detail, data=data)
 
 
+class DeleteError(DomainError):
+    """
+    Exception for delete error
+    """
+
+    code: str = "delete_error"
+
+    def __init__(
+        self,
+        detail: str = "Delete error",
+        data: str | None = None,
+    ):
+        super().__init__(detail=detail, data=data)
+
+
 class InvalidError(DomainError):
     """
     Invalid error

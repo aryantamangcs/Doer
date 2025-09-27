@@ -37,14 +37,10 @@ class AuthMiddleware(BaseHTTPMiddleware):
 
             auth_token = request.headers.get("Authorization")
             if not auth_token:
-                raise NotFoundError(
-                    detail="Authorization not found", status_code=HTTP_400_BAD_REQUEST
-                )
+                raise NotFoundError(detail="Authorization not found")
             token = await self.check_token_standard(auth_token)
             if not token:
-                raise NotFoundError(
-                    detail="Token not found", status_code=HTTP_400_BAD_REQUEST
-                )
+                raise NotFoundError(detail="Token not found")
 
             user = await self.decode_token(token)
 

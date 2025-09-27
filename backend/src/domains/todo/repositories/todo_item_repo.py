@@ -35,3 +35,10 @@ class TodoItemRepository(ABC):
         Get Todo Item by id
         """
         raise NotImplementedError
+
+    @abstractmethod
+    async def get_by_identifier(self, identifier: str) -> TodoItem | None:
+        """
+        Get Todo Item by identifier
+        """
+        raise NotImplementedError

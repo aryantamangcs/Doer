@@ -16,6 +16,13 @@ class TodoListRepository(ABC):
         raise NotImplementedError
 
     @abstractmethod
+    async def get_all(self) -> list[TodoList]:
+        """
+        Adds the todolist and returns an instance of todo list
+        """
+        raise NotImplementedError
+
+    @abstractmethod
     async def find_one(self, where: dict | None = None, **kwargs) -> TodoList | None:
         """
         Finds one todo list
@@ -23,7 +30,7 @@ class TodoListRepository(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    async def delete(self) -> None:
+    async def delete(self, id: int):
         """
         Delets the todo list
         """
@@ -40,5 +47,12 @@ class TodoListRepository(ABC):
     async def update(self, todo_list: TodoList) -> TodoList:
         """
         Updates the todo_list and returns updated list
+        """
+        raise NotImplementedError
+
+    @abstractmethod
+    async def get_by_identifier(self, identifier: str) -> TodoList | None:
+        """
+        Get Todo Item by identifier
         """
         raise NotImplementedError
