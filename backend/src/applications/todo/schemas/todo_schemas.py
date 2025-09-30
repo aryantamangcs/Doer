@@ -14,6 +14,16 @@ class CreateTodoListSchema(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
 
+class CreateTodoItemSchema(BaseModel):
+    """
+    schema to validate payload while creating todo item
+    """
+
+    title: str = Field(..., title="Title of the todo item")
+    status: str = Field(..., title="Status of the todo item")
+    description: str = Field(..., title="Description of the todo item")
+
+
 class TodoListOutSchema(BaseModel):
     """
     schema to validate payload while sending outside the application

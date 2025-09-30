@@ -2,7 +2,7 @@ import uuid
 from dataclasses import dataclass, field
 from datetime import datetime
 
-from ..enums import TodoListMemberRoleEnum, TodoStatusEnum
+from ..enums import TodoListMemberRoleEnum
 
 
 @dataclass
