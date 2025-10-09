@@ -16,8 +16,7 @@ from src.infrastructures.todo.repositories.todo_list_repo_sqlalchemy import (
 
 class TodoServices:
     """
-    list of methods and services for todo
-    """
+    list of methods and services for todo"""
 
     def __init__(
         self,
