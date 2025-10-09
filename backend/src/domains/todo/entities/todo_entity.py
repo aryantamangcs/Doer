@@ -57,6 +57,9 @@ class TodoList:
 
     @classmethod
     def create(cls, name: str, owner_id: int):
+        """
+        creates todo list
+        """
         new_todo_list = cls(
             name=name,
             owner_id=owner_id,
