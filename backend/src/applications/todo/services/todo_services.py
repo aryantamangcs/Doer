@@ -1,6 +1,12 @@
-from src.applications.todo.schemas.todo_schemas import CreateTodoListSchema
+from src.applications.todo.schemas.todo_schemas import (
+    CreateTodoItemSchema,
+    CreateTodoListSchema,
+)
 from src.domains.todo.entities.todo_entity import TodoList
+from src.domains.todo.entities.todo_item_entity import TodoItem
+from src.domains.todo.repositories.todo_item_repo import TodoItemRepository
 from src.domains.todo.services.list_member_domain_services import ListMemberServices
+from src.domains.todo.services.todo_item_domain_services import TodoItemDomainServices
 from src.domains.todo.services.todo_list_domain_services import TodoListDomainServices
 from src.infrastructures.authentication.repository.user_repo_sqlalchemy import (
     UserRepoSqlAlchemy,
@@ -8,6 +14,9 @@ from src.infrastructures.authentication.repository.user_repo_sqlalchemy import (
 from src.infrastructures.common.context import current_user
 from src.infrastructures.todo.repositories.list_member_repo_sqlalchemy import (
     ListMemberRepoSqlAlchemy,
+)
+from src.infrastructures.todo.repositories.todo_item_repo_sqlalchemy import (
+    TodoItemRepoSqlAlchemy,
 )
 from src.infrastructures.todo.repositories.todo_list_repo_sqlalchemy import (
     TodoListRepoSqlAlchemy,
@@ -22,9 +31,11 @@ class TodoServices:
         self,
         todo_list_repo: TodoListRepoSqlAlchemy,
         todo_list_domain_services: TodoListDomainServices,
+        todo_item_domain_services: TodoItemDomainServices,
     ):
         self.todo_list_repo = todo_list_repo
         self.todo_list_domain_services = todo_list_domain_services
+        self.todo_item_domain_services = todo_item_domain_services
 
     async def create_todo_list(self, payload: CreateTodoListSchema) -> TodoList:
         """
@@ -53,15 +64,51 @@ class TodoServices:
         """
         await self.todo_list_domain_services.delete_todo_list(identifier=identifier)
 
+    async def create_todo_item(self, payload: CreateTodoItemSchema) -> TodoItem:
+        """
+        creates todo item
+        Args:
+            CreateTodoItemSchema
+        Return:
+            Newly created todo_item
+        """
+        user = current_user.get()
+        new_todo_item = await self.todo_item_domain_services.create_todo_item(
+            todo_list_identifier=payload.todo_list_identifier,
+            title=payload.title,
+            status=payload.status,
+            description=payload.description,
+            owner_id=user["id"],
+        )
+        return new_todo_item
+
+    async def list_todo_items(self) -> list[TodoItem]:
+        """
+        lists all the todo items
+        Returns:
+            List of todo_items
+        """
+        return await self.todo_item_domain_services.list_all_todo_item()
+
+    async def delete_todo_item(self, identifier: str):
+        """
+        delete todo item
+        """
+        await self.todo_item_domain_services.delete_todo_item(identifier=identifier)
+
 
 def get_todo_services() -> TodoServices:
     """
     returnns an instance of TodoServices
     """
     todo_list_repo = TodoListRepoSqlAlchemy()
+    todo_item_repo = TodoItemRepoSqlAlchemy()
     user_repo = UserRepoSqlAlchemy()
     list_member_repo = ListMemberRepoSqlAlchemy()
     list_member_service = ListMemberServices(repo=list_member_repo)
+    todo_item_domain_services = TodoItemDomainServices(
+        repo=todo_item_repo, todo_list_repo=todo_list_repo
+    )
     todo_list_domain_services = TodoListDomainServices(
         repo=todo_list_repo,
         user_repo=user_repo,
@@ -70,4 +117,5 @@ def get_todo_services() -> TodoServices:
     return TodoServices(
         todo_list_repo=todo_list_repo,
         todo_list_domain_services=todo_list_domain_services,
+        todo_item_domain_services=todo_item_domain_services,
     )
