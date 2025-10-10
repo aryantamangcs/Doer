@@ -27,6 +27,13 @@ class TodoItemRepository(ABC):
         raise NotImplementedError
 
     @abstractmethod
+    async def get_all(self) -> list[TodoItem]:
+        """
+        Finds todo item
+        """
+        raise NotImplementedError
+
+    @abstractmethod
     async def delete(self, id: int) -> None:
         """
         Delets the todo item

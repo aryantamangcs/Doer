@@ -32,7 +32,7 @@ class TodoItemDomainServices:
             identifier=todo_list_identifier
         )
         if not todo_list:
-            raise NotFoundError("Todo list  not found")
+            raise NotFoundError("Todo list not found")
 
         if not todo_list.id:
             raise ServerError("Todo list id is set none")
@@ -53,12 +53,21 @@ class TodoItemDomainServices:
                 detail="Error while creating todo item", data=str(e)
             ) from e
 
-    async def delete_todo_item(self, todo_id) -> None:
+    async def list_all_todo_item(self) -> list[TodoItem]:
+        """
+        list all the todo item
+        """
+        todo_lists = await self.repo.get_all()
+        return todo_lists
+
+    async def delete_todo_item(self, identifier: str) -> None:
         """
         Delete the todo item
         """
 
-        todo_item = await self.repo.get_by_id(id=todo_id)
+        todo_item = await self.repo.get_by_identifier(identifier=identifier)
         if not todo_item:
             raise ValueError("Todo item not found while deleting")
-        return await self.repo.delete(id=todo_id)
+        if not todo_item.id:
+            raise ValueError("Todo item id is set none")
+        return await self.repo.delete(id=todo_item.id)
