@@ -1,8 +1,8 @@
 import { cn } from "@/lib/utils";
 
-interface InfoPanelProps {
+type InfoPanelProps = {
   className?: string;
-}
+};
 
 export default function InfoPanel({ className }: InfoPanelProps) {
   return (

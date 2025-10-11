@@ -2,11 +2,11 @@ import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
 
-interface AuthPromptProps {
+type AuthPromptProps = {
   content: string;
   title: string;
   href: string;
-}
+};
 
 export default function AuthPrompt({ content, title, href }: AuthPromptProps) {
   return (

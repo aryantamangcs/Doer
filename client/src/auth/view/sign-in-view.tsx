@@ -17,6 +17,8 @@ import { Container } from "@/components/common";
 
 import { signIn } from "@/api/auth";
 
+import { paths } from "@/routes/paths";
+
 import { AuthPrompt, InfoPanel } from "../components";
 
 const signInSchema = z.object({
@@ -26,11 +28,11 @@ const signInSchema = z.object({
 
 type SignInFormValues = z.infer<typeof signInSchema>;
 
-export function SigninView() {
+export function SignInView() {
   const prompt = {
     content: "Don't have an account?",
     title: "Sign up",
-    href: "/auth/signup",
+    href: paths.auth.signUp,
   };
 
   return (

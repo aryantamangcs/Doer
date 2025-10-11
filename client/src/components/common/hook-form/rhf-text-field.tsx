@@ -4,12 +4,12 @@ import { cn } from "@/lib/utils";
 
 import { Input } from "@/components/ui/input";
 
-interface RHFTextFieldProps {
+type RHFTextFieldProps = {
   name: string;
   type?: string;
   placeholder?: string;
   className?: string;
-}
+};
 
 export default function RHFTextField({
   name,

@@ -1,9 +1,9 @@
-// // import { SigninView } from "@/auth/view";
+import { TodoView } from "@/modules/todo/view";
 
-// // ----------------------------------------------------------------------
+// ----------------------------------------------------------------------
 
-// export const metadata = { title: "" };
+export const metadata = { title: "Todo" };
 
-// export default function Page() {
-//   return <SigninView />;
-// }
+export default function Page() {
+  return <TodoView />;
+}
