@@ -41,6 +41,14 @@ class UserRepo(ABC):
         """
 
     @abstractmethod
+    async def get_by_identifier(self, identifier: str) -> User | None:
+        """
+        Finds user
+        Returns:
+            User if found else None
+        """
+
+    @abstractmethod
     async def get_all(self, **kwargs) -> list[User]:
         """
         Finds  list of users
