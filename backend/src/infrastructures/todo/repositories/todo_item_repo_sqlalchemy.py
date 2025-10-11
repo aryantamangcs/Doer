@@ -1,6 +1,6 @@
 from typing import Callable
 
-from sqlalchemy import select
+from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.domains.todo.entities.todo_item_entity import TodoItem
@@ -134,3 +134,32 @@ class TodoItemRepoSqlAlchemy(TodoItemRepository):
                 for todo_item in todo_items
             ]
             return data
+
+    async def update(self, updated_todo_item: TodoItem) -> TodoItem | None:
+        """
+        Update the todo item
+        """
+
+        async with self.get_session() as session:
+            stmt = (
+                update(TodoItemModel)
+                .where(TodoItemModel.id == updated_todo_item.id)
+                .values(**updated_todo_item.__dict__)
+                .returning(TodoItemModel)
+            )
+            result = await session.execute(stmt)
+            updated_row = result.scalar_one_or_none()
+            await session.commit()
+            return updated_row
+
+            new_item = TodoItemModel(
+                todo_list_id=updated_todo_item.todo_list_id,
+                title=updated_todo_item.title,
+                status=updated_todo_item.status,
+                description=updated_todo_item.description,
+                owner_id=updated_todo_item.owner_id,
+                identifier=updated_todo_item.identifier,
+            )
+            await session.commit()
+            await session.refresh(new_item)
+            return updated_todo_item
