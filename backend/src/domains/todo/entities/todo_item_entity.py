@@ -50,11 +50,22 @@ class TodoItem:
         """
         change the title to the new title
         Args:
-            title : new title of the todo_list
+            title : new title of the todo_item
         Return:
             None
         """
         self.title = title
+        self.updated_at = datetime.now()
+
+    def change_description(self, description: str) -> None:
+        """
+        change description to the new description
+        Args:
+            description: new description of todo_item
+        Return:
+            None
+        """
+        self.description = description
         self.updated_at = datetime.now()
 
     def change_status(self, status: TodoStatusEnum) -> None:
@@ -67,6 +78,17 @@ class TodoItem:
         """
 
         self.status = status
+        self.updated_at = datetime.now()
+
+    def change_owner(self, owner_id: int) -> None:
+        """
+        Changes the owner of the todo item
+        Args:
+            owner_id : New owner id
+        Return:
+            None
+        """
+        self.owner_id = owner_id
         self.updated_at = datetime.now()
 
     def delete(self) -> None:
