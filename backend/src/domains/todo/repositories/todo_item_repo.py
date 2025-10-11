@@ -60,3 +60,9 @@ class TodoItemRepository(ABC):
         Get Todo Item by identifier
         """
         raise NotImplementedError
+
+    @abstractmethod
+    async def update(self, updated_todo_item: TodoItem) -> TodoItem | None:
+        """
+        Update the todo item
+        """
