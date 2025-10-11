@@ -1,6 +1,6 @@
 from typing import Callable
 
-from sqlalchemy import select
+from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.domains.todo.entities.todo_entity import TodoList
@@ -75,6 +75,40 @@ class TodoListRepoSqlAlchemy(TodoListRepository):
                 deleted_at=todo_list.deleted_at,
             )
 
+    async def filter(
+        self, where: dict | None = None, **kwargs
+    ) -> list[TodoList] | None:
+        """
+        finds  todolist
+        """
+
+        query = select(TodoListModel)
+
+        if where:
+            for attr, value in where.items():
+                column = getattr(TodoListModel, attr)
+                query = query.where(column == value)
+
+        async with self.get_session() as session:
+            result = await session.execute(query)
+            todo_lists = result.scalars()
+
+            if not todo_lists:
+                return None
+            data = [
+                TodoList(
+                    id=todo_list.id,
+                    name=todo_list.name,
+                    created_at=todo_list.created_at,
+                    updated_at=todo_list.updated_at,
+                    identifier=todo_list.identifier,
+                    owner_id=todo_list.owner_id,
+                    deleted_at=todo_list.deleted_at,
+                )
+                for todo_list in todo_lists
+            ]
+            return data
+
     async def delete(self, id: int):
         """
         delete the todo list
@@ -93,11 +127,6 @@ class TodoListRepoSqlAlchemy(TodoListRepository):
     async def get_by_id(self, id: int) -> TodoList | None:
         """
         get todo list by id
-        """
-
-    async def update(self, todo_list: TodoList) -> TodoList:
-        """
-        update the todolist
         """
 
     async def get_by_identifier(self, identifier: str) -> TodoList | None:
@@ -121,3 +150,24 @@ class TodoListRepoSqlAlchemy(TodoListRepository):
                 owner_id=todo_list.owner_id,
                 deleted_at=todo_list.deleted_at,
             )
+
+    async def update(self, updated_todo_list: TodoList) -> TodoList | None:
+        """
+        Update the todo list details
+        """
+
+        updated_list = updated_todo_list.__dict__
+
+        updated_list.pop("members")
+
+        async with self.get_session() as session:
+            stmt = (
+                update(TodoListModel)
+                .where(TodoListModel.id == updated_todo_list.id)
+                .values(**updated_list)
+                .returning(TodoListModel)
+            )
+            result = await session.execute(stmt)
+            updated_row = result.scalar_one_or_none()
+            await session.commit()
+            return updated_todo_list

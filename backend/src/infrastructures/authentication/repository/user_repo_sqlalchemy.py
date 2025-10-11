@@ -144,3 +144,26 @@ class UserRepoSqlAlchemy(UserRepo):
                 username=result.username,
             )
             return user
+
+    async def get_by_identifier(self, identifier: str) -> User | None:
+        """
+        Gets user by identifier if exists:
+        Returns:
+            User if found else returns None
+        """
+        async with self.get_session() as session:
+            stmt = select(UserModel).where(UserModel.identifier == identifier)
+            result = await session.scalar(stmt)
+            if not result:
+                return None
+
+            user = User(
+                id=result.id,
+                first_name=result.first_name,
+                last_name=result.last_name,
+                email=result.email,
+                _password=result.password,
+                identifier=str(result.identifier),
+                username=result.username,
+            )
+            return user

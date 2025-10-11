@@ -1,5 +1,10 @@
+from typing import Any
+
 from src.domains.todo.entities.todo_item_entity import TodoItem
 from src.domains.todo.enums.todo_enums import TodoStatusEnum
+from src.infrastructures.authentication.repository.user_repo_sqlalchemy import (
+    UserRepoSqlAlchemy,
+)
 from src.shared.exceptions import CreateError, NotFoundError, ServerError
 
 from ..enums import TodoStatusEnum
@@ -32,10 +37,10 @@ class TodoItemDomainServices:
             identifier=todo_list_identifier
         )
         if not todo_list:
-            raise NotFoundError("Todo list not found")
+            raise NotFoundError(detail="Todo list not found")
 
         if not todo_list.id:
-            raise ServerError("Todo list id is set none")
+            raise ServerError(detail="Todo list id is set none")
 
         new_item = TodoItem.create(
             todo_list_id=todo_list.id,
@@ -52,12 +57,20 @@ class TodoItemDomainServices:
                 detail="Error while creating todo item", data=str(e)
             ) from e
 
-    async def list_all_todo_item(self) -> list[TodoItem]:
+    async def list_todo_item_by_todo_list(
+        self, todo_list_identifier: str
+    ) -> list[TodoItem]:
         """
         list all the todo item
         """
-        todo_lists = await self.repo.get_all()
-        return todo_lists
+        todo_list = await self.todo_list_repo.get_by_identifier(todo_list_identifier)
+        if not todo_list:
+            raise NotFoundError(detail="Todo list not found")
+        if not todo_list.id:
+            raise ServerError(detail="Todo list id is set none")
+
+        todo_items = await self.repo.filter(where={"todo_list_id": todo_list.id})
+        return todo_items
 
     async def delete_todo_item(self, identifier: str) -> None:
         """
@@ -70,3 +83,41 @@ class TodoItemDomainServices:
         if not todo_item.id:
             raise ValueError("Todo item id is set none")
         return await self.repo.delete(id=todo_item.id)
+
+    async def edit_todo_item(
+        self, todo_item_identifier: str, payload: dict[str, Any]
+    ) -> TodoItem | None:
+        """
+        Edits the todo_item
+        """
+        todo_item = await self.repo.get_by_identifier(todo_item_identifier)
+        if not todo_item:
+            raise NotFoundError(detail="Todo item not found")
+        for keys in payload.keys():
+            match keys:
+                case "title":
+                    todo_item.change_title(title=payload["title"])
+                case "status":
+                    todo_item.change_status(status=payload["status"])
+                case "description":
+                    todo_item.change_description(description=payload["description"])
+                case "owner_identifier":
+                    user = await self.handle_owner_during_edit(
+                        owner_identifier=payload["owner_identifier"]
+                    )
+                    if not user:
+                        raise NotFoundError(detail="Owner identifier not found")
+                    if not user.id:
+                        raise ServerError(detail="User id is set none")
+                    todo_item.change_owner(owner_id=user.id)
+                case _:
+                    return None
+
+        updated_item = await self.repo.update(todo_item)
+        return updated_item
+
+    async def handle_owner_during_edit(self, owner_identifier: str):
+        """
+        Checks if the owner id exists or not
+        """
+        return await UserRepoSqlAlchemy().get_by_identifier(owner_identifier)

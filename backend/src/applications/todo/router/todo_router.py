@@ -3,6 +3,8 @@ from starlette.status import HTTP_200_OK, HTTP_201_CREATED, HTTP_204_NO_CONTENT
 
 from src.applications.todo.schemas.todo_schemas import (
     CreateTodoItemSchema,
+    EditTodoItemSchema,
+    EditTodoListSchema,
     TodoItemOutSchema,
 )
 from src.shared.response import CustomResponse as cr
@@ -46,6 +48,25 @@ async def list_all_todo_lists(todo_service=Depends(get_todo_services)):
     )
 
 
+@router.patch("/list", response_model=CustomResponseSchema[list[TodoItemOutSchema]])
+async def edit_todo_list(
+    payload: EditTodoListSchema,
+    todo_list_identifier: str = Query(
+        ..., title="Todo list identifier of which you want to edit details"
+    ),
+    todo_service=Depends(get_todo_services),
+):
+    """
+    Edit todo item details
+    """
+    updated_list = await todo_service.edit_todo_list(todo_list_identifier, payload)
+    return cr.success(
+        message="Successfully updated the todo list",
+        data=TodoListOutSchema.model_validate(updated_list).model_dump(),
+        status_code=HTTP_200_OK,
+    )
+
+
 @router.delete("/list")
 async def delete_todo_list(
     identifier: str = Query(..., title="Identifier"),
@@ -74,11 +95,16 @@ async def create_todo_item(
 
 
 @router.get("/item", response_model=CustomResponseSchema[list[TodoItemOutSchema]])
-async def list_all_todo_items(todo_service=Depends(get_todo_services)):
+async def list_all_todo_items(
+    todo_list_identifier: str = Query(
+        ..., title="Todo list identifier of which you want to list todo_item"
+    ),
+    todo_service=Depends(get_todo_services),
+):
     """
     lists all the todo lists
     """
-    all_todo_items = await todo_service.list_todo_items()
+    all_todo_items = await todo_service.list_todo_items(todo_list_identifier)
     data = [
         TodoItemOutSchema.model_validate(todo_list).model_dump()
         for todo_list in all_todo_items
@@ -86,6 +112,25 @@ async def list_all_todo_items(todo_service=Depends(get_todo_services)):
     return cr.success(
         message="Successfully fetched the todo items",
         data=data,
+        status_code=HTTP_200_OK,
+    )
+
+
+@router.patch("/item", response_model=CustomResponseSchema[list[TodoItemOutSchema]])
+async def edit_todo_item(
+    payload: EditTodoItemSchema,
+    todo_item_identifier: str = Query(
+        ..., title="Todo item identifier of which you want to edit details"
+    ),
+    todo_service=Depends(get_todo_services),
+):
+    """
+    Edit todo item details
+    """
+    updated_item = await todo_service.edit_todo_item(todo_item_identifier, payload)
+    return cr.success(
+        message="Successfully updated the todo item",
+        data=TodoItemOutSchema.model_validate(updated_item).model_dump(),
         status_code=HTTP_200_OK,
     )
 
