@@ -1,3 +1,5 @@
+from typing import Any
+
 from src.domains.authentication.repositories.user_repository import UserRepo
 from src.domains.todo.services.list_member_domain_services import ListMemberServices
 from src.shared.exceptions import CreateError, DeleteError, NotFoundError, ServerError
@@ -63,13 +65,13 @@ class TodoListDomainServices:
         """
         todo_list = await self.repo.get_by_id(id=todo_list_id)
         if not todo_list:
-            raise NotFoundError("Todo list not found")
+            raise NotFoundError(detail="Todo list not found")
         if not todo_list.id:
-            raise ServerError("Todo list id is none")
+            raise ServerError(detail="Todo list id is none")
 
         new_member = self.user_repo.get_by_id(id=user_id)
         if not new_member:
-            raise NotFoundError("Member to be added not found")
+            raise NotFoundError(detail="Member to be added not found")
 
         new_list_member = await self.list_member_service.add_member(
             user_id=user_id, todo_list_id=todo_list.id
@@ -84,9 +86,9 @@ class TodoListDomainServices:
         """
         todo_list = await self.repo.get_by_id(id=todo_list_id)
         if not todo_list:
-            raise NotFoundError("Todo list not found")
+            raise NotFoundError(detail="Todo list not found")
         if not todo_list.id:
-            raise ServerError("Todo list id is none")
+            raise ServerError(detail="Todo list id is none")
 
         new_member = self.user_repo.get_by_id(id=user_id)
         if not new_member:
@@ -96,3 +98,32 @@ class TodoListDomainServices:
             user_id=user_id, todo_list_id=todo_list.id
         )
         await self.repo.update(todo_list)
+
+    async def edit_todo_list(
+        self, todo_list_identifier: str, payload: dict[str, Any]
+    ) -> TodoList | None:
+        """
+        Edits the todo list details
+        Args:
+            todo list identifier
+            payload
+        Returns:
+            Newly updated todo_list or None
+
+        """
+
+        todo_list = await self.repo.get_by_identifier(todo_list_identifier)
+        if not todo_list:
+            raise NotFoundError(detail="Todo list not found")
+        if not todo_list.id:
+            raise ServerError(detail="todo list id is set none")
+
+        for keys in payload.keys():
+            match keys:
+                case "name":
+                    todo_list.change_name(name=payload["name"])
+                case _:
+                    return None
+
+        updated_list = await self.repo.update(todo_list)
+        return updated_list

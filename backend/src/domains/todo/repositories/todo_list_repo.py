@@ -52,7 +52,7 @@ class TodoListRepository(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    async def update(self, todo_list: TodoList) -> TodoList:
+    async def update(self, updated_todo_list: TodoList) -> TodoList | None:
         """
         Updates the todo_list and returns updated list
         """

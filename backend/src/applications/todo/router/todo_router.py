@@ -4,6 +4,7 @@ from starlette.status import HTTP_200_OK, HTTP_201_CREATED, HTTP_204_NO_CONTENT
 from src.applications.todo.schemas.todo_schemas import (
     CreateTodoItemSchema,
     EditTodoItemSchema,
+    EditTodoListSchema,
     TodoItemOutSchema,
 )
 from src.shared.response import CustomResponse as cr
@@ -43,6 +44,25 @@ async def list_all_todo_lists(todo_service=Depends(get_todo_services)):
     return cr.success(
         message="Successfully fetched the todo list",
         data=data,
+        status_code=HTTP_200_OK,
+    )
+
+
+@router.patch("/list", response_model=CustomResponseSchema[list[TodoItemOutSchema]])
+async def edit_todo_list(
+    payload: EditTodoListSchema,
+    todo_list_identifier: str = Query(
+        ..., title="Todo list identifier of which you want to edit details"
+    ),
+    todo_service=Depends(get_todo_services),
+):
+    """
+    Edit todo item details
+    """
+    updated_list = await todo_service.edit_todo_list(todo_list_identifier, payload)
+    return cr.success(
+        message="Successfully updated the todo list",
+        data=TodoListOutSchema.model_validate(updated_list).model_dump(),
         status_code=HTTP_200_OK,
     )
 

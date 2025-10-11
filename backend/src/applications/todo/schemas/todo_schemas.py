@@ -26,6 +26,14 @@ class CreateTodoItemSchema(BaseModel):
     description: str = Field(..., title="Description of the todo item")
 
 
+class EditTodoListSchema(BaseModel):
+    """
+    schema to validate payload while editing todo list
+    """
+
+    name: str | None = None
+
+
 class TodoListOutSchema(BaseModel):
     """
     schema to validate payload while sending outside the application
@@ -65,7 +73,7 @@ class CreateTodoItemSchema(BaseModel):
 
 class EditTodoItemSchema(BaseModel):
     """
-    schema to validate payload while creating todo item
+    schema to validate payload while editing todo item
     """
 
     title: str | None = None

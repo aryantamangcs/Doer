@@ -150,16 +150,4 @@ class TodoItemRepoSqlAlchemy(TodoItemRepository):
             result = await session.execute(stmt)
             updated_row = result.scalar_one_or_none()
             await session.commit()
-            return updated_row
-
-            new_item = TodoItemModel(
-                todo_list_id=updated_todo_item.todo_list_id,
-                title=updated_todo_item.title,
-                status=updated_todo_item.status,
-                description=updated_todo_item.description,
-                owner_id=updated_todo_item.owner_id,
-                identifier=updated_todo_item.identifier,
-            )
-            await session.commit()
-            await session.refresh(new_item)
             return updated_todo_item

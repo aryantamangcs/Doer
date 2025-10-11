@@ -2,6 +2,7 @@ from src.applications.todo.schemas.todo_schemas import (
     CreateTodoItemSchema,
     CreateTodoListSchema,
     EditTodoItemSchema,
+    EditTodoListSchema,
 )
 from src.domains.todo.entities.todo_entity import TodoList
 from src.domains.todo.entities.todo_item_entity import TodoItem
@@ -59,6 +60,17 @@ class TodoServices:
         """
         all_todo_lists = await self.todo_list_domain_services.list_all_todo_list()
         return all_todo_lists
+
+    async def edit_todo_list(self, identifier: str, payload: EditTodoListSchema):
+        """
+        Edit todo item
+        """
+        updated_list = await self.todo_list_domain_services.edit_todo_list(
+            identifier, payload.model_dump(exclude_none=True)
+        )
+        if not updated_list:
+            raise ServerError(detail="Error while updating todo list")
+        return updated_list
 
     async def delete_todo_list(self, identifier: str):
         """
