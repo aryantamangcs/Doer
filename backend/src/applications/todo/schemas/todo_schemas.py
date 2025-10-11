@@ -63,6 +63,17 @@ class CreateTodoItemSchema(BaseModel):
     model_config = {"extra": "forbid"}
 
 
+class EditTodoItemSchema(BaseModel):
+    """
+    schema to validate payload while creating todo item
+    """
+
+    title: str | None = None
+    satus: TodoStatusEnum | None = None
+    description: str | None = None
+    owner_identifier: str | None = None
+
+
 class TodoItemOutSchema(BaseModel):
     """
     schema to validate payload while sending outside the application
