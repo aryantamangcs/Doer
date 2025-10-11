@@ -2,7 +2,7 @@ import uuid
 from dataclasses import dataclass, field
 from datetime import datetime
 
-from ..enums import TodoListMemberRoleEnum, TodoStatusEnum
+from ..enums import TodoListMemberRoleEnum
 
 
 @dataclass
@@ -57,6 +57,9 @@ class TodoList:
 
     @classmethod
     def create(cls, name: str, owner_id: int):
+        """
+        creates todo list
+        """
         new_todo_list = cls(
             name=name,
             owner_id=owner_id,

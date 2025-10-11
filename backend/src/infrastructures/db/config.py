@@ -6,7 +6,7 @@ from ..config.settings import get_settings
 
 settings = get_settings()
 
-async_engine = create_async_engine(url=settings.ASYNC_DATABASE_URL, echo=True)
+async_engine = create_async_engine(url=settings.ASYNC_DATABASE_URL, echo=False)
 sync_engine = create_engine(url=settings.SYNC_DATABASE_URL, echo=False)
 
 async_session = async_sessionmaker(

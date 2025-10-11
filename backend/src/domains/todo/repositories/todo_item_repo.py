@@ -1,4 +1,9 @@
 from abc import ABC, abstractmethod
+from typing import Callable
+
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from src.infrastructures.db.config import async_session
 
 from ..entities.todo_item_entity import TodoItem
 
@@ -13,12 +18,18 @@ class TodoItemRepository(ABC):
         """
         Adds the todoitem and returns an instance of todo item
         """
-        raise NotImplementedError
 
     @abstractmethod
     async def find_one(self, where: dict | None = None, **kwargs):
         """
         Finds one todo item
+        """
+        raise NotImplementedError
+
+    @abstractmethod
+    async def get_all(self) -> list[TodoItem]:
+        """
+        Finds todo item
         """
         raise NotImplementedError
 
