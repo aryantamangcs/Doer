@@ -1,6 +1,6 @@
 from src.domains.todo.entities.todo_item_entity import TodoItem
 from src.domains.todo.enums.todo_enums import TodoStatusEnum
-from src.shared.exceptions import CreateError, NotFoundError
+from src.shared.exceptions import CreateError, NotFoundError, ServerError
 
 from ..enums import TodoStatusEnum
 from ..repositories.todo_item_repo import TodoItemRepository
@@ -18,7 +18,7 @@ class TodoItemDomainServices:
 
     async def create_todo_item(
         self,
-        todo_list_id: int,
+        todo_list_identifier: str,
         title: str,
         status: TodoStatusEnum,
         description: str,
@@ -27,13 +27,18 @@ class TodoItemDomainServices:
         """
         Creates todo item and returns the new todo item
         """
-        todo_list = self.todo_list_repo.get_by_id(id=todo_list_id)
 
+        todo_list = await self.todo_list_repo.get_by_identifier(
+            identifier=todo_list_identifier
+        )
         if not todo_list:
-            raise NotFoundError("Todo list id not found")
+            raise NotFoundError("Todo list not found")
+
+        if not todo_list.id:
+            raise ServerError("Todo list id is set none")
 
         new_item = TodoItem.create(
-            todo_list_id=todo_list_id,
+            todo_list_id=todo_list.id,
             title=title,
             status=status,
             description=description,
@@ -47,12 +52,21 @@ class TodoItemDomainServices:
                 detail="Error while creating todo item", data=str(e)
             ) from e
 
-    async def delete_todo_item(self, todo_id) -> None:
+    async def list_all_todo_item(self) -> list[TodoItem]:
+        """
+        list all the todo item
+        """
+        todo_lists = await self.repo.get_all()
+        return todo_lists
+
+    async def delete_todo_item(self, identifier: str) -> None:
         """
         Delete the todo item
         """
 
-        todo_item = await self.repo.get_by_id(id=todo_id)
+        todo_item = await self.repo.get_by_identifier(identifier=identifier)
         if not todo_item:
             raise ValueError("Todo item not found while deleting")
-        return await self.repo.delete(id=todo_id)
+        if not todo_item.id:
+            raise ValueError("Todo item id is set none")
+        return await self.repo.delete(id=todo_item.id)
