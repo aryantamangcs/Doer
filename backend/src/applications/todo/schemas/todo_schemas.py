@@ -77,7 +77,7 @@ class EditTodoItemSchema(BaseModel):
     """
 
     title: str | None = None
-    satus: TodoStatusEnum | None = None
+    status: TodoStatusEnum | None = None
     description: str | None = None
     owner_identifier: str | None = None
 
