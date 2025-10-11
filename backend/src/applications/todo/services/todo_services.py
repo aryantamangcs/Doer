@@ -1,6 +1,7 @@
 from src.applications.todo.schemas.todo_schemas import (
     CreateTodoItemSchema,
     CreateTodoListSchema,
+    EditTodoItemSchema,
 )
 from src.domains.todo.entities.todo_entity import TodoList
 from src.domains.todo.entities.todo_item_entity import TodoItem
@@ -21,6 +22,7 @@ from src.infrastructures.todo.repositories.todo_item_repo_sqlalchemy import (
 from src.infrastructures.todo.repositories.todo_list_repo_sqlalchemy import (
     TodoListRepoSqlAlchemy,
 )
+from src.shared.exceptions import ServerError
 
 
 class TodoServices:
@@ -97,6 +99,17 @@ class TodoServices:
         delete todo item
         """
         await self.todo_item_domain_services.delete_todo_item(identifier=identifier)
+
+    async def edit_todo_item(self, identifier: str, payload: EditTodoItemSchema):
+        """
+        Edit todo item
+        """
+        updated_item = await self.todo_item_domain_services.edit_todo_item(
+            identifier, payload.model_dump(exclude_none=True)
+        )
+        if not updated_item:
+            raise ServerError(detail="Error while updating todo item")
+        return updated_item
 
 
 def get_todo_services() -> TodoServices:
