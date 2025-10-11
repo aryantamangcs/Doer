@@ -30,6 +30,8 @@ class AuthMiddleware(BaseHTTPMiddleware):
     ) -> Response:
 
         try:
+            if request.method.lower() == "options":
+                return await call_next(request)
 
             exclude = await self.handle_exclude_path(request)
             if exclude:
