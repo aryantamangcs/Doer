@@ -18,6 +18,7 @@ import { Container } from "@/components/common";
 import { signIn } from "@/api/auth";
 
 import { paths } from "@/routes/paths";
+import { useRouter } from "@/routes/hooks";
 
 import { AuthPrompt, InfoPanel } from "../components";
 
@@ -50,6 +51,7 @@ export function SignInView() {
 
 function SigninForm() {
   const [showPassword, setShowPassword] = useState<boolean>(false);
+  const router = useRouter();
 
   const {
     register,
@@ -64,6 +66,7 @@ function SigninForm() {
     try {
       const response = await signIn(data);
 
+      router.push("/todo");
       toast.success("Logged in successfully!");
 
       reset();
