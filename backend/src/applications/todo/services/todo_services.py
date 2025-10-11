@@ -82,13 +82,15 @@ class TodoServices:
         )
         return new_todo_item
 
-    async def list_todo_items(self) -> list[TodoItem]:
+    async def list_todo_items(self, todo_list_identifier: str) -> list[TodoItem]:
         """
         lists all the todo items
         Returns:
             List of todo_items
         """
-        return await self.todo_item_domain_services.list_all_todo_item()
+        return await self.todo_item_domain_services.list_todo_item_by_todo_list(
+            todo_list_identifier
+        )
 
     async def delete_todo_item(self, identifier: str):
         """

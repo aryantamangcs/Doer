@@ -75,6 +75,40 @@ class TodoListRepoSqlAlchemy(TodoListRepository):
                 deleted_at=todo_list.deleted_at,
             )
 
+    async def filter(
+        self, where: dict | None = None, **kwargs
+    ) -> list[TodoList] | None:
+        """
+        finds  todolist
+        """
+
+        query = select(TodoListModel)
+
+        if where:
+            for attr, value in where.items():
+                column = getattr(TodoListModel, attr)
+                query = query.where(column == value)
+
+        async with self.get_session() as session:
+            result = await session.execute(query)
+            todo_lists = result.scalars()
+
+            if not todo_lists:
+                return None
+            data = [
+                TodoList(
+                    id=todo_list.id,
+                    name=todo_list.name,
+                    created_at=todo_list.created_at,
+                    updated_at=todo_list.updated_at,
+                    identifier=todo_list.identifier,
+                    owner_id=todo_list.owner_id,
+                    deleted_at=todo_list.deleted_at,
+                )
+                for todo_list in todo_lists
+            ]
+            return data
+
     async def delete(self, id: int):
         """
         delete the todo list

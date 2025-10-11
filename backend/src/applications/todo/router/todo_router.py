@@ -74,11 +74,16 @@ async def create_todo_item(
 
 
 @router.get("/item", response_model=CustomResponseSchema[list[TodoItemOutSchema]])
-async def list_all_todo_items(todo_service=Depends(get_todo_services)):
+async def list_all_todo_items(
+    todo_list_identifier: str = Query(
+        ..., title="Todo list identifier of which you want to list todo_item"
+    ),
+    todo_service=Depends(get_todo_services),
+):
     """
     lists all the todo lists
     """
-    all_todo_items = await todo_service.list_todo_items()
+    all_todo_items = await todo_service.list_todo_items(todo_list_identifier)
     data = [
         TodoItemOutSchema.model_validate(todo_list).model_dump()
         for todo_list in all_todo_items

@@ -99,3 +99,38 @@ class TodoItemRepoSqlAlchemy(TodoItemRepository):
             if todo_list:
                 await session.delete(todo_list)
                 await session.commit()
+
+    async def filter(self, where: dict | None = None, **kwargs) -> list[TodoItem]:
+        """
+        finds todoitem
+        """
+
+        query = select(TodoItemModel)
+
+        if where:
+            for attr, value in where.items():
+                column = getattr(TodoItemModel, attr)
+                query = query.where(column == value)
+
+        async with self.get_session() as session:
+            result = await session.execute(query)
+            todo_items = result.scalars()
+
+            if not todo_items:
+                return []
+            data = [
+                TodoItem(
+                    id=todo_item.id,
+                    title=todo_item.title,
+                    status=TodoStatusEnum(todo_item.status),
+                    description=todo_item.description,
+                    todo_list_id=todo_item.todo_list_id,
+                    created_at=todo_item.created_at,
+                    updated_at=todo_item.updated_at,
+                    identifier=todo_item.identifier,
+                    owner_id=todo_item.owner_id,
+                    deleted_at=todo_item.deleted_at,
+                )
+                for todo_item in todo_items
+            ]
+            return data

@@ -28,6 +28,12 @@ class TodoItemRepository(ABC):
         raise NotImplementedError
 
     @abstractmethod
+    async def filter(self, where: dict | None = None, **kwargs) -> list[TodoItem]:
+        """
+        Finds item of todo on certain conditions
+        """
+
+    @abstractmethod
     async def get_all(self) -> list[TodoItem]:
         """
         Finds todo item

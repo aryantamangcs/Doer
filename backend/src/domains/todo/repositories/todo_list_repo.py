@@ -30,6 +30,14 @@ class TodoListRepository(ABC):
         raise NotImplementedError
 
     @abstractmethod
+    async def filter(
+        self, where: dict | None = None, **kwargs
+    ) -> list[TodoList] | None:
+        """
+        Finds list of todo on certain conditions
+        """
+
+    @abstractmethod
     async def delete(self, id: int):
         """
         Delets the todo list
