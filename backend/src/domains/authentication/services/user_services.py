@@ -1,3 +1,5 @@
+from src.domains.authentication.entities.user_entity import User
+
 from ..repositories import UserRepo
 from .password_hasher import PasswordHasher
 
@@ -53,3 +55,10 @@ class UserServices:
         """
 
         return hasher.verify(hashed_password, password)
+
+    async def list_all_users(self) -> list[User]:
+        """
+        list all the users
+        """
+        all_users = await self.user_repo.filter()
+        return all_users

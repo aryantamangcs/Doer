@@ -207,6 +207,12 @@ class AuthServices:
 
         return {"access_token": access_token}
 
+    async def list_all_users(self) -> list[User]:
+        """
+        list all the users
+        """
+        return await self.domain_serivce.list_all_users()
+
 
 def get_auth_services() -> AuthServices:
     """

@@ -8,6 +8,7 @@ from starlette.status import HTTP_200_OK, HTTP_201_CREATED
 from src.applications.authentication.schemas.auth_schemas import (
     LoginSchema,
     RefreshTokenSchema,
+    UserOutSchema,
 )
 from src.infrastructures.common.context import current_user
 from src.shared.response import CustomResponse as cr
@@ -59,6 +60,18 @@ async def login(payload: LoginSchema, auth_service=Depends(get_auth_services)):
     data = await auth_service.validate_credentials(payload)
     return cr.success(
         message="Successfully logged in", status_code=HTTP_200_OK, data=data
+    )
+
+
+@router.get("/all-users", response_model=CustomResponseSchema)
+async def get_all_users(auth_service=Depends(get_auth_services)):
+    """
+    Get all the users
+    """
+    all_users = await auth_service.list_all_users()
+    return cr.success(
+        message="Successfully fetched all users",
+        data=[UserOutSchema.model_validate(user).model_dump() for user in all_users],
     )
 
 
