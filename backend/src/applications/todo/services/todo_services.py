@@ -3,6 +3,7 @@ from src.applications.todo.schemas.todo_schemas import (
     CreateTodoListSchema,
     EditTodoItemSchema,
     EditTodoListSchema,
+    TodoListMemberSchema,
 )
 from src.domains.todo.entities.todo_entity import TodoList
 from src.domains.todo.entities.todo_item_entity import TodoItem
@@ -23,7 +24,7 @@ from src.infrastructures.todo.repositories.todo_item_repo_sqlalchemy import (
 from src.infrastructures.todo.repositories.todo_list_repo_sqlalchemy import (
     TodoListRepoSqlAlchemy,
 )
-from src.shared.exceptions import ServerError
+from src.shared.exceptions import InvalidError, ServerError
 
 
 class TodoServices:
@@ -122,6 +123,18 @@ class TodoServices:
         if not updated_item:
             raise ServerError(detail="Error while updating todo item")
         return updated_item
+
+    async def todo_list_add_member(self, payload: TodoListMemberSchema):
+        """
+        adds member in todo list
+        """
+        member = await self.todo_list_domain_services.add_member(
+            todo_list_identifier=payload.todo_list_identifier,
+            user_identifier=payload.user_identifier,
+        )
+        if not member:
+            raise ServerError(detail="Error while adding member")
+        return member
 
 
 def get_todo_services() -> TodoServices:

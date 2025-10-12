@@ -1,6 +1,6 @@
+import uuid
 from dataclasses import dataclass
 from typing import Optional
-from uuid import uuid4
 
 from src.shared.exceptions import InvalidError
 
@@ -67,7 +67,6 @@ class User:
         username: str,
         email: str,
         password: str,
-        identifier: str = str(uuid4()),
     ) -> "User":
         """
         Creates the user
@@ -87,5 +86,5 @@ class User:
             username=username,
             email=email,
             _password=password,
-            identifier=identifier,
+            identifier=str(uuid.uuid4()),
         )

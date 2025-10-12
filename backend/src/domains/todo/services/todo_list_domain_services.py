@@ -40,7 +40,7 @@ class TodoListDomainServices:
         """
         Lists all the todo lists
         """
-        return await self.repo.get_all()
+        return await self.repo.filter()
 
     async def delete_todo_list(self, identifier: str):
         """
@@ -57,45 +57,53 @@ class TodoListDomainServices:
         except Exception as e:
             raise DeleteError() from e
 
-    async def add_member(self, todo_list_id: int, user_id: int) -> ListMember:
+    async def add_member(
+        self, todo_list_identifier: str, user_identifier: str
+    ) -> ListMember:
         """
         Adds member to the new_todo_list
         Args:
             user_id to be added
         """
-        todo_list = await self.repo.get_by_id(id=todo_list_id)
+        todo_list = await self.repo.get_by_identifier(todo_list_identifier)
         if not todo_list:
             raise NotFoundError(detail="Todo list not found")
         if not todo_list.id:
             raise ServerError(detail="Todo list id is none")
 
-        new_member = self.user_repo.get_by_id(id=user_id)
+        new_member = await self.user_repo.get_by_identifier(user_identifier)
         if not new_member:
             raise NotFoundError(detail="Member to be added not found")
+        if not new_member.id:
+            raise ServerError(detail="Member is set to none")
 
         new_list_member = await self.list_member_service.add_member(
-            user_id=user_id, todo_list_id=todo_list.id
+            user_id=new_member.id, todo_list_id=todo_list.id
         )
         return new_list_member
 
-    async def delete_member(self, todo_list_id: int, user_id: int) -> None:
+    async def delete_member(
+        self, todo_list_identifier: str, user_identifier: str
+    ) -> None:
         """
         Adds member to the new_todo_list
         Args:
             user_id to be deleted
         """
-        todo_list = await self.repo.get_by_id(id=todo_list_id)
+        todo_list = await self.repo.get_by_identifier(todo_list_identifier)
         if not todo_list:
             raise NotFoundError(detail="Todo list not found")
         if not todo_list.id:
             raise ServerError(detail="Todo list id is none")
 
-        new_member = self.user_repo.get_by_id(id=user_id)
-        if not new_member:
+        member = await self.user_repo.get_by_identifier(user_identifier)
+        if not member:
             raise NotFoundError("Member to be deleted not found")
+        if not member.id:
+            raise ServerError(detail="Member id is set to none")
 
         await self.list_member_service.remove_member(
-            user_id=user_id, todo_list_id=todo_list.id
+            user_id=member.id, todo_list_id=todo_list.id
         )
         await self.repo.update(todo_list)
 

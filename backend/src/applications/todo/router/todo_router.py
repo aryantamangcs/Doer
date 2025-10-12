@@ -6,6 +6,7 @@ from src.applications.todo.schemas.todo_schemas import (
     EditTodoItemSchema,
     EditTodoListSchema,
     TodoItemOutSchema,
+    TodoListMemberSchema,
 )
 from src.shared.response import CustomResponse as cr
 from src.shared.response import CustomResponseSchema
@@ -37,6 +38,7 @@ async def list_all_todo_lists(todo_service=Depends(get_todo_services)):
     lists all the todo lists
     """
     all_todo_list = await todo_service.list_todos()
+    print("the all todo list", all_todo_list[0])
     data = [
         TodoListOutSchema.model_validate(todo_list).model_dump()
         for todo_list in all_todo_list
@@ -65,6 +67,17 @@ async def edit_todo_list(
         data=TodoListOutSchema.model_validate(updated_list).model_dump(),
         status_code=HTTP_200_OK,
     )
+
+
+@router.post("/list/add-member", response_model=CustomResponseSchema)
+async def todo_list_add_member(
+    payload: TodoListMemberSchema, todo_service=Depends(get_todo_services)
+):
+    """
+    Add member to the todo_list
+    """
+    await todo_service.todo_list_add_member(payload)
+    return cr.success(message="Successfully added member", status_code=HTTP_201_CREATED)
 
 
 @router.delete("/list")

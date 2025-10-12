@@ -2,6 +2,8 @@ import uuid
 from dataclasses import dataclass, field
 from datetime import datetime
 
+from src.domains.todo.enums.todo_enums import TodoListMemberAccessEnum
+
 from ..enums import TodoListMemberRoleEnum
 
 
@@ -16,11 +18,17 @@ class ListMember:
     created_at: datetime
     updated_at: datetime
     deleted_at: datetime | None = None
-    role: TodoListMemberRoleEnum = TodoListMemberRoleEnum.MEMBER
+    role: str = TodoListMemberRoleEnum.MEMBER
+    access: str = TodoListMemberAccessEnum.READ
+    id: int | None = None
 
     @classmethod
     def create(
-        cls, user_id: int, todo_list_id: int, role=TodoListMemberRoleEnum.MEMBER
+        cls,
+        user_id: int,
+        todo_list_id: int,
+        role=TodoListMemberRoleEnum.MEMBER.value,
+        access=TodoListMemberAccessEnum.READ.value,
     ):
         """
         Creates the list member
@@ -29,9 +37,25 @@ class ListMember:
             user_id=user_id,
             todo_list_id=todo_list_id,
             role=role,
+            access=access,
             created_at=datetime.now(),
             updated_at=datetime.now(),
         )
+
+    def change_access(self, new_access: TodoListMemberAccessEnum):
+        """
+        Changes the access of the member
+        """
+
+        self.access = new_access.value
+        self.updated_at = datetime.now()
+
+    def change_role(self, role: TodoListMemberRoleEnum):
+        """
+        changes the role of the member
+        """
+        self.role = role.value
+        self.updated_at = datetime.now()
 
     def delete(self):
         """

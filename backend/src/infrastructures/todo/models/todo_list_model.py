@@ -18,9 +18,11 @@ class ListMemberModel(BaseModel, TimeStampMixin):
     user_id: Mapped[int] = mapped_column(ForeignKey("sys_users.id"))
 
     role: Mapped[str] = mapped_column(nullable=False)
+    access: Mapped[str] = mapped_column(nullable=False)
 
     # relationships
     todo_list: Mapped["TodoListModel"] = relationship(back_populates="members")
+    member: Mapped["UserModel"] = relationship(back_populates="todo_list_member")
 
 
 class TodoListModel(BaseModel, TimeStampMixin):

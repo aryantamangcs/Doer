@@ -29,6 +29,7 @@ class TodoListMemberMigration(BaseMigration):
         self.foreign(name="todo_list_id", table="todo_lists", index=True)
         self.foreign(name="user_id", table="sys_users")
         self.string(name="role", nullable=False)
+        self.string(name="access", nullable=False)
 
 
 def upgrade() -> None:

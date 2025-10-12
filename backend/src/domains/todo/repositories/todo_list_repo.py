@@ -31,8 +31,8 @@ class TodoListRepository(ABC):
 
     @abstractmethod
     async def filter(
-        self, where: dict | None = None, **kwargs
-    ) -> list[TodoList] | None:
+        self, where: dict | None = None, related: list[str] | None = None, **kwargs
+    ) -> list[TodoList]:
         """
         Finds list of todo on certain conditions
         """
