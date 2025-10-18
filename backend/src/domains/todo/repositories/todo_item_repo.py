@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from datetime import date
 from typing import Callable
 
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -29,6 +30,14 @@ class TodoItemRepository(ABC):
 
     @abstractmethod
     async def filter(self, where: dict | None = None, **kwargs) -> list[TodoItem]:
+        """
+        Finds item of todo on certain conditions
+        """
+
+    @abstractmethod
+    async def filter_by_date(
+        self, todo_list_id: int, target_date: date
+    ) -> list[TodoItem]:
         """
         Finds item of todo on certain conditions
         """

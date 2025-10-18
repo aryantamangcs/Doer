@@ -30,11 +30,11 @@ class TodoItem:
         status: TodoStatusEnum,
         description: str,
         owner_id: int,
-        identifier=str(uuid.uuid4()),
     ):
         """
         Creates the todo item
         """
+
         return cls(
             todo_list_id=todo_list_id,
             title=title,
@@ -43,7 +43,7 @@ class TodoItem:
             owner_id=owner_id,
             created_at=datetime.now(),
             updated_at=datetime.now(),
-            identifier=identifier,
+            identifier=str(uuid.uuid4()),
         )
 
     def change_title(self, title: str) -> None:

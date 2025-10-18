@@ -1,3 +1,5 @@
+from datetime import date
+
 from src.applications.todo.schemas.todo_schemas import (
     CreateTodoItemSchema,
     CreateTodoListMemberSchema,
@@ -107,14 +109,16 @@ class TodoServices:
         )
         return new_todo_item
 
-    async def list_todo_items(self, todo_list_identifier: str) -> list[TodoItem]:
+    async def list_todo_items(
+        self, todo_list_identifier: str, req_date: date | None
+    ) -> list[TodoItem]:
         """
         lists all the todo items
         Returns:
             List of todo_items
         """
         return await self.todo_item_domain_services.list_todo_item_by_todo_list(
-            todo_list_identifier
+            todo_list_identifier, req_date
         )
 
     async def delete_todo_item(self, identifier: str):

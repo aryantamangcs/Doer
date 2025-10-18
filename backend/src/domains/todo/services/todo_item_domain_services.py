@@ -1,3 +1,4 @@
+from datetime import date
 from typing import Any
 
 from src.domains.todo.entities.todo_item_entity import TodoItem
@@ -58,10 +59,11 @@ class TodoItemDomainServices:
             ) from e
 
     async def list_todo_item_by_todo_list(
-        self, todo_list_identifier: str
+        self, todo_list_identifier: str, req_date: date | None
     ) -> list[TodoItem]:
         """
         list all the todo item
+        if the req_date is not provided the current date is used
         """
         todo_list = await self.todo_list_repo.get_by_identifier(todo_list_identifier)
         if not todo_list:
@@ -69,7 +71,9 @@ class TodoItemDomainServices:
         if not todo_list.id:
             raise ServerError(detail="Todo list id is set none")
 
-        todo_items = await self.repo.filter(where={"todo_list_id": todo_list.id})
+        todo_items = await self.repo.filter_by_date(
+            todo_list_id=todo_list.id, target_date=req_date or date.today()
+        )
         return todo_items
 
     async def delete_todo_item(self, identifier: str) -> None:

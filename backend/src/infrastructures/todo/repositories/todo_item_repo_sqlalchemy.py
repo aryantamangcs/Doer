@@ -1,3 +1,4 @@
+from datetime import date, datetime
 from typing import Callable
 
 from sqlalchemy import select, update
@@ -99,6 +100,43 @@ class TodoItemRepoSqlAlchemy(TodoItemRepository):
             if todo_list:
                 await session.delete(todo_list)
                 await session.commit()
+
+    async def filter_by_date(
+        self, todo_list_id: int, target_date: date
+    ) -> list["TodoItem"]:
+        """
+        Returns TodoItems created on a specific date
+        """
+        start = datetime.combine(target_date, datetime.min.time())
+        end = datetime.combine(target_date, datetime.max.time())
+
+        query = (
+            select(TodoItemModel)
+            .where(TodoItemModel.todo_list_id == todo_list_id)
+            .where(TodoItemModel.created_at >= start)
+            .where(TodoItemModel.created_at <= end)
+        )
+
+        async with self.get_session() as session:
+            result = await session.execute(query)
+            items = result.scalars().all()
+
+        # map ORM -> domain object
+        return [
+            TodoItem(
+                id=item.id,
+                title=item.title,
+                status=TodoStatusEnum(item.status),
+                description=item.description,
+                todo_list_id=item.todo_list_id,
+                created_at=item.created_at,
+                updated_at=item.updated_at,
+                identifier=item.identifier,
+                owner_id=item.owner_id,
+                deleted_at=item.deleted_at,
+            )
+            for item in items
+        ]
 
     async def filter(self, where: dict | None = None, **kwargs) -> list[TodoItem]:
         """
