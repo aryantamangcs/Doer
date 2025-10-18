@@ -98,6 +98,21 @@ class InvalidError(DomainError):
         super().__init__(detail=detail, data=data)
 
 
+class UnAuthorizedError(DomainError):
+    """
+    unauthorized error
+    """
+
+    code: str = "unauthorized_error"
+
+    def __init__(
+        self,
+        detail: str = "Unauthorized error",
+        data: str | None = None,
+    ):
+        super().__init__(detail=detail, data=data)
+
+
 class ServerError(DomainError):
     """
     Server error
