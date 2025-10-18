@@ -1,5 +1,6 @@
 from src.applications.todo.schemas.todo_schemas import (
     CreateTodoItemSchema,
+    CreateTodoListMemberSchema,
     CreateTodoListSchema,
     EditTodoItemSchema,
     EditTodoListSchema,
@@ -15,6 +16,10 @@ from src.infrastructures.authentication.repository.user_repo_sqlalchemy import (
     UserRepoSqlAlchemy,
 )
 from src.infrastructures.common.context import current_user
+from src.infrastructures.todo.models.todo_list_model import (
+    ListMemberModel,
+    TodoListModel,
+)
 from src.infrastructures.todo.repositories.list_member_repo_sqlalchemy import (
     ListMemberRepoSqlAlchemy,
 )
@@ -59,7 +64,12 @@ class TodoServices:
         """
         lists all the todo list
         """
-        all_todo_lists = await self.todo_list_domain_services.list_all_todo_list()
+        all_todo_lists = await self.todo_list_domain_services.list_all_todo_list(
+            related=[
+                TodoListModel.members,
+                (TodoListModel.members, ListMemberModel.member),
+            ]
+        )
         return all_todo_lists
 
     async def edit_todo_list(self, identifier: str, payload: EditTodoListSchema):
@@ -124,7 +134,7 @@ class TodoServices:
             raise ServerError(detail="Error while updating todo item")
         return updated_item
 
-    async def todo_list_add_member(self, payload: TodoListMemberSchema):
+    async def todo_list_add_member(self, payload: CreateTodoListMemberSchema):
         """
         adds member in todo list
         """

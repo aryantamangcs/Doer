@@ -36,11 +36,13 @@ class TodoListDomainServices:
                 detail="Error while creating todo list", data=str(e)
             ) from e
 
-    async def list_all_todo_list(self) -> list[TodoList]:
+    async def list_all_todo_list(
+        self, related: list[Any] | None = None
+    ) -> list[TodoList]:
         """
         Lists all the todo lists
         """
-        return await self.repo.filter()
+        return await self.repo.filter(related=related)
 
     async def delete_todo_list(self, identifier: str):
         """

@@ -41,7 +41,7 @@ class TodoListMemberSchema(BaseModel):
     """
 
     user_id: int
-    user: UserOutSchema
+    member: UserOutSchema
 
     model_config = {"from_attributes": True}
 

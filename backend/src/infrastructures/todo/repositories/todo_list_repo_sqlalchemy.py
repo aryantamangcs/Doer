@@ -84,6 +84,17 @@ class TodoListRepoSqlAlchemy(TodoListRepository):
         """
 
         query = select(TodoListModel)
+        if related:
+            for rel in related:
+                if isinstance(rel, tuple):
+                    # Nested relationship e.g. (TodoListModel.members, ListMemberModel.member)
+                    root_rel, nested_rel = rel
+                    query = query.options(
+                        selectinload(root_rel).selectinload(nested_rel)
+                    )
+                else:
+                    # Simple relationship
+                    query = query.options(selectinload(rel))
 
         if where:
             for attr, value in where.items():
@@ -95,7 +106,7 @@ class TodoListRepoSqlAlchemy(TodoListRepository):
             todo_lists = result.scalars().unique().all()
 
             if not todo_lists:
-                return None
+                return []
             data = [
                 TodoList(
                     id=todo_list.id,
@@ -105,7 +116,7 @@ class TodoListRepoSqlAlchemy(TodoListRepository):
                     identifier=todo_list.identifier,
                     owner_id=todo_list.owner_id,
                     deleted_at=todo_list.deleted_at,
-                    # members=todo_list.members,
+                    members=list(todo_list.members),
                 )
                 for todo_list in todo_lists
             ]

@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from typing import Any
 
 from ..entities.todo_entity import TodoList
 
@@ -31,7 +32,7 @@ class TodoListRepository(ABC):
 
     @abstractmethod
     async def filter(
-        self, where: dict | None = None, related: list[str] | None = None, **kwargs
+        self, where: dict | None = None, related: list[Any] | None = None, **kwargs
     ) -> list[TodoList]:
         """
         Finds list of todo on certain conditions
