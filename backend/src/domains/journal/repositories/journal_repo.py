@@ -9,7 +9,7 @@ class JournalRepository(ABC):
     """
 
     @abstractmethod
-    def add(self, journal: Journal) -> Journal:
+    async def add(self, journal: Journal) -> Journal:
         """
         creates the new journal
         """

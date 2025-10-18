@@ -14,7 +14,7 @@ class JournalDomainServices:
         self.user_repo = user_repo
 
     async def create_journal(
-        self, title: str, description: str, created_by: int
+        self, title: str, content: str, created_by: int
     ) -> Journal:
         """
         Creates a new journal
@@ -26,7 +26,7 @@ class JournalDomainServices:
             newly created journal
         """
         new_journal = Journal.create(
-            title=title, description=description, created_by=created_by
+            title=title, content=content, created_by=created_by
         )
         return await self.repo.add(new_journal)
 
