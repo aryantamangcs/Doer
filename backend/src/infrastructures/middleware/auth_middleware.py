@@ -11,7 +11,7 @@ from src.infrastructures.authentication.repository.user_repo_sqlalchemy import (
 )
 from src.infrastructures.common.context import current_user
 from src.infrastructures.exception_handler import DOMAIN_TO_HTTP
-from src.shared.exceptions import BearerTokenError, NotFoundError
+from src.shared.exceptions import BearerTokenError, NotFoundError, UnAuthorizedError
 from src.shared.response import CustomResponse as cr
 
 from ..token.jwt_service import TokenService
@@ -40,10 +40,10 @@ class AuthMiddleware(BaseHTTPMiddleware):
 
             auth_token = request.headers.get("Authorization")
             if not auth_token:
-                raise NotFoundError(detail="Authorization not found")
+                raise UnAuthorizedError(detail="Authorization not found")
             token = await self.check_token_standard(auth_token)
             if not token:
-                raise NotFoundError(detail="Token not found")
+                raise UnAuthorizedError(detail="Token not found")
 
             user = await self.decode_token(token)
 
