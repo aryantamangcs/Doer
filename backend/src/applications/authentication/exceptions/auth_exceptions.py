@@ -73,6 +73,18 @@ class RefreshTokenError(ServerError):
         super().__init__(detail=detail, data=data)
 
 
+class RefreshTokenInvalidError(DomainError):
+    """
+    RefreshToken Expired Error
+    """
+
+    def __init__(
+        self,
+        detail: str = "Refresh Token has expired",
+    ):
+        super().__init__(detail=detail, data=data)
+
+
 class RefreshTokenExpiredError(DomainError):
     """
     RefreshToken Expired Error

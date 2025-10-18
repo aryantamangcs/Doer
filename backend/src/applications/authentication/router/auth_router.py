@@ -11,6 +11,8 @@ from src.applications.authentication.schemas.auth_schemas import (
     UserOutSchema,
 )
 from src.infrastructures.common.context import current_user
+from src.infrastructures.middleware.auth_middleware import AuthMiddleware
+from src.infrastructures.token.jwt_service import TokenService
 from src.shared.response import CustomResponse as cr
 from src.shared.response import CustomResponseSchema
 
@@ -90,9 +92,8 @@ async def refresh_token_fetch(
         RefreshTokenExpiredError if the refresh token has expired
         InvalidRefreshTokenError if the provided refresh token is not valid
     """
-    user = current_user.get()
 
-    payload = await auth_service.validate_refresh_token(payload.refresh_token, user)
+    payload = await auth_service.validate_refresh_token(payload.refresh_token)
 
     return cr.success(
         message="Successfully refetched refresh token",
