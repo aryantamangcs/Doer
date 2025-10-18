@@ -75,9 +75,9 @@ async def get_all_users(auth_service=Depends(get_auth_services)):
     )
 
 
-@router.get("/refresh-token", response_model=CustomResponseSchema)
+@router.post("/refresh-token", response_model=CustomResponseSchema)
 async def refresh_token_fetch(
-    refresh_token: str = Query(..., title="Refresh token to fetch new access token"),
+    payload=RefreshTokenSchema,
     auth_service=Depends(get_auth_services),
 ):
     """
@@ -92,7 +92,7 @@ async def refresh_token_fetch(
     """
     user = current_user.get()
 
-    payload = await auth_service.validate_refresh_token(refresh_token, user)
+    payload = await auth_service.validate_refresh_token(payload.refresh_token, user)
 
     return cr.success(
         message="Successfully refetched refresh token",
