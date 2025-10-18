@@ -1,3 +1,5 @@
+from datetime import date as dt
+
 from fastapi import APIRouter, Depends, Query
 from starlette.status import HTTP_200_OK, HTTP_201_CREATED, HTTP_204_NO_CONTENT
 
@@ -112,12 +114,14 @@ async def list_all_todo_items(
     todo_list_identifier: str = Query(
         ..., title="Todo list identifier of which you want to list todo_item"
     ),
+    date: dt | None = Query(None, title="Specific date item"),
     todo_service=Depends(get_todo_services),
 ):
     """
     lists all the todo lists
+    if date is not provided the current date is used
     """
-    all_todo_items = await todo_service.list_todo_items(todo_list_identifier)
+    all_todo_items = await todo_service.list_todo_items(todo_list_identifier, date)
     data = [
         TodoItemOutSchema.model_validate(todo_list).model_dump()
         for todo_list in all_todo_items
