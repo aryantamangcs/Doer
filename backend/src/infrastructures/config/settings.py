@@ -17,7 +17,7 @@ class Settings(BaseSettings):
     SYNC_DATABASE_URL: str
     ASYNC_DATABASE_URL: str
     JWT_SECRET_KEY: str
-    JWT_ACCESS_TOKEN_EXPIRE_MINUTES: int = 1
+    JWT_ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
     JWT_REFRESH_TOKEN_EXPIRE_MINUTES: int = 43200  # a month
     ALLOW_ORIGINS: list[str] = [
         "http://192.168.1.102:3001",

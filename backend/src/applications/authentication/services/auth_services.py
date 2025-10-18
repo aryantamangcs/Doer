@@ -25,7 +25,7 @@ from src.infrastructures.authentication.repository.user_repo_sqlalchemy import (
 from src.infrastructures.config.settings import get_settings
 from src.infrastructures.hasher.hash_service import Hasher
 from src.infrastructures.token.jwt_service import TokenService
-from src.shared.exceptions import CreateError, InvalidError
+from src.shared.exceptions import CreateError, InvalidError, NotFoundError
 
 from ..exceptions.auth_exceptions import (
     CheckUserError,
@@ -33,6 +33,7 @@ from ..exceptions.auth_exceptions import (
     LoginInvalidError,
     RefreshTokenError,
     RefreshTokenExpiredError,
+    RefreshTokenInvalidError,
     UsernameExistsError,
 )
 
@@ -184,20 +185,17 @@ class AuthServices:
                 raise UsernameExistsError()
             return username
 
-    async def validate_refresh_token(
-        self, refresh_token: str, user: dict[str, Any]
-    ) -> dict[str, Any]:
+    async def validate_refresh_token(self, refresh_token: str) -> dict[str, Any]:
         """
         Validates the refresh token and returns new access token
         """
+        user = await self.decode_token(refresh_token)
         r_t = await self.refresh_token_repo.find_one(
             where={"user_id": user["id"], "refresh_token": refresh_token}
         )
 
         if not r_t:
-            raise RefreshTokenError(
-                detail="Invalid refresh token", status_code=HTTP_400_BAD_REQUEST
-            )
+            raise RefreshTokenInvalidError(detail="Invalid refresh token")
 
         if datetime.timestamp(r_t.expires_at) < datetime.now().timestamp():
             raise RefreshTokenExpiredError()
@@ -212,6 +210,29 @@ class AuthServices:
         list all the users
         """
         return await self.domain_serivce.list_all_users()
+
+    async def decode_token(self, token: str) -> dict[str, Any]:
+        """
+        Decodes the token and returns the user details
+        """
+        details = TokenService.verify_access_token(token)
+        user = await self.fetch_user_by_identifier(details["id"])
+        if not user:
+            raise NotFoundError(detail="Invalid token")
+        return user.__dict__
+
+    async def fetch_user_by_identifier(self, identifier: str) -> User:
+        """
+        Finds the user on the basis of identifier
+        """
+
+        user_repo = UserRepoSqlAlchemy()
+        user = await user_repo.find_one(where={"identifier": identifier})
+        if not user:
+            raise NotFoundError(
+                detail="User with that identifier not found",
+            )
+        return user
 
 
 def get_auth_services() -> AuthServices:
