@@ -40,7 +40,6 @@ class TodoListMemberSchema(BaseModel):
     schema to validate data while sending outside
     """
 
-    user_id: int
     member: UserOutSchema
 
     model_config = {"from_attributes": True}
