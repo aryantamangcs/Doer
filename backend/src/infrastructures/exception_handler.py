@@ -4,6 +4,7 @@ from fastapi.requests import Request
 from starlette.status import (
     HTTP_201_CREATED,
     HTTP_400_BAD_REQUEST,
+    HTTP_401_UNAUTHORIZED,
     HTTP_404_NOT_FOUND,
     HTTP_409_CONFLICT,
     HTTP_422_UNPROCESSABLE_ENTITY,
@@ -20,6 +21,7 @@ DOMAIN_TO_HTTP = {
     "create_error": HTTP_500_INTERNAL_SERVER_ERROR,
     "invalid_error": HTTP_400_BAD_REQUEST,
     "server_error": HTTP_500_INTERNAL_SERVER_ERROR,
+    "unauthorized_error": HTTP_401_UNAUTHORIZED,
 }
 
 
