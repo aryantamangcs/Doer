@@ -97,11 +97,3 @@ class UserOutSchema(BaseModel):
     identifier: str
 
     model_config = {"from_attributes": True}
-
-
-class RefreshTokenSchema(BaseModel):
-    """
-    schema to validate refresh token
-    """
-
-    refresh_token: str

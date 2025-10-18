@@ -77,7 +77,7 @@ async def get_all_users(auth_service=Depends(get_auth_services)):
 
 @router.post("/refresh-token", response_model=CustomResponseSchema)
 async def refresh_token_fetch(
-    payload=RefreshTokenSchema,
+    payload: RefreshTokenSchema,
     auth_service=Depends(get_auth_services),
 ):
     """

@@ -1,20 +1,23 @@
 from typing import Any
 
 from fastapi.requests import Request
-from fastapi.responses import Response
+from fastapi.responses import JSONResponse, Response
 from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoint
-from starlette.status import HTTP_400_BAD_REQUEST
+from starlette.status import HTTP_400_BAD_REQUEST, HTTP_403_FORBIDDEN
 
 from src.domains.authentication.entities.user_entity import User
 from src.infrastructures.authentication.repository.user_repo_sqlalchemy import (
     UserRepoSqlAlchemy,
 )
 from src.infrastructures.common.context import current_user
+from src.infrastructures.config.settings import get_settings
 from src.infrastructures.exception_handler import DOMAIN_TO_HTTP
-from src.shared.exceptions import BearerTokenError, NotFoundError
+from src.shared.exceptions import BearerTokenError, NotFoundError, UnAuthorizedError
 from src.shared.response import CustomResponse as cr
 
 from ..token.jwt_service import TokenService
+
+settings = get_settings()
 
 
 class AuthMiddleware(BaseHTTPMiddleware):
@@ -26,10 +29,9 @@ class AuthMiddleware(BaseHTTPMiddleware):
         super().__init__(app=app)
         self.exclude_path = exclude_path
 
-    async def dispatch(
-        self, request: Request, call_next: RequestResponseEndpoint
-    ) -> Response:
+    async def dispatch(self, request: Request, call_next: RequestResponseEndpoint):
 
+        origin = request.headers.get("origin")
         try:
             if request.method.lower() == "options":
                 return await call_next(request)
@@ -40,10 +42,10 @@ class AuthMiddleware(BaseHTTPMiddleware):
 
             auth_token = request.headers.get("Authorization")
             if not auth_token:
-                raise NotFoundError(detail="Authorization not found")
+                raise UnAuthorizedError(detail="Authorization not found")
             token = await self.check_token_standard(auth_token)
             if not token:
-                raise NotFoundError(detail="Token not found")
+                raise UnAuthorizedError(detail="Token not found")
 
             user = await self.decode_token(token)
 
@@ -54,13 +56,7 @@ class AuthMiddleware(BaseHTTPMiddleware):
 
             return await call_next(request)
         except Exception as e:  # pylint: disable=broad-except
-
-            status_code = DOMAIN_TO_HTTP.get(getattr(e, "code"))
-            return cr.error(
-                data=str(e),
-                message=getattr(e, "detail", str(e)),
-                status_code=status_code or HTTP_400_BAD_REQUEST,
-            )
+            return self.handle_unauthorized_response(origin, e)
 
     async def check_token_standard(self, token: str) -> str | None:
         """
@@ -107,3 +103,30 @@ class AuthMiddleware(BaseHTTPMiddleware):
             return True
 
         return False
+
+    def handle_unauthorized_response(self, origin, e: Exception):
+        """
+        To avoid Access-Control-Allow-Origin problem
+        """
+        headers = {}
+
+        if not origin in settings.ALLOW_ORIGINS:
+            return cr.error(
+                message="Origin not allowed", status_code=HTTP_403_FORBIDDEN
+            )
+
+        headers = {
+            "Access-Control-Allow-Origin": origin,
+            "Access-Control-Allow-Credentials": "true",
+        }
+
+        status_code = DOMAIN_TO_HTTP.get(getattr(e, "code"))
+        return JSONResponse(
+            status_code=status_code or HTTP_400_BAD_REQUEST,
+            content={
+                "data": str(e),
+                "success": False,
+                "message": getattr(e, "detail", str(e)),
+            },
+            headers=headers,
+        )
