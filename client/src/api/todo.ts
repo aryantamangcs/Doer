@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 
-import useSWR from "swr";
+import useSWR, { mutate } from "swr";
 
 import { endpoints } from "./endpoints";
 
@@ -29,6 +29,8 @@ export const createCategory = async (categoryData: any) => {
   try {
     const response = await poster([endpoints.todo.category, categoryData]);
 
+    mutate(endpoints.todo.category);
+
     return response.data;
   } catch (error) {
     throw error;
@@ -48,6 +50,10 @@ export const deleteCategory = async (categoryData: any) => {
 export const createTodo = async (todoData: any) => {
   try {
     const response = await poster([endpoints.todo.todo, todoData]);
+
+    mutate(
+      `${endpoints.todo.todo}?todo_list_identifier=${todoData.todo_list_identifier}`
+    );
 
     return response.data;
   } catch (error) {

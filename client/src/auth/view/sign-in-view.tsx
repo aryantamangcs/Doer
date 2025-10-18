@@ -66,10 +66,11 @@ function SigninForm() {
     try {
       const response = await signIn(data);
 
-      router.push("/todo");
-      toast.success("Logged in successfully!");
-
       reset();
+
+      router.push(paths.todo);
+
+      toast.success("Logged in successfully!");
     } catch (error) {
       console.error("Login failed:", error);
     }

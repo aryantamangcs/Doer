@@ -48,6 +48,8 @@ export default function TodoCategoryCreateDialog({
       toast.success("Category created successfully!");
 
       reset();
+
+      onClose();
     } catch (error) {
       console.error(error);
     }

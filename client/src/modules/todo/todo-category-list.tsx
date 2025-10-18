@@ -1,11 +1,12 @@
-import { Card } from "@/components/ui/card";
+import { Plus, ChevronDown } from "lucide-react";
+
 import { Button } from "@/components/ui/button";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { ChevronDown } from "lucide-react";
+import { Separator } from "@/components/ui/separator";
 
 type Category = {
   identifier: string;
@@ -15,6 +16,7 @@ type Category = {
 type TodoCategoryListProps = {
   categories: Category[];
   selectedCategory: Category;
+  onOpenCategoryDialog: () => void;
   onSelectCategory: (categoryDetail: Category) => void;
 };
 
@@ -22,26 +24,37 @@ export default function TodoCategoryList({
   categories,
   selectedCategory,
   //
+  onOpenCategoryDialog,
   onSelectCategory,
 }: TodoCategoryListProps) {
   return (
     <Popover>
-      <div className="flex gap-3 items-center">
-        <PopoverTrigger asChild>
-          <Button size="sm" variant="outline" className="w-max">
-            {selectedCategory?.name}
-            <ChevronDown />
-          </Button>
-        </PopoverTrigger>
-      </div>
+      <PopoverTrigger asChild>
+        <Button size="sm" variant="outline" className="w-max">
+          {selectedCategory?.name ?? "Category"}
+          <ChevronDown />
+        </Button>
+      </PopoverTrigger>
 
-      <PopoverContent className="w-36 p-2">
-        <div className="grid gap-2 max-h-64 overflow-auto">
+      <PopoverContent align="start" className="w-38 p-2">
+        <div className="grid gap-1 max-h-64 overflow-auto">
+          <Button
+            size="sm"
+            variant="ghost"
+            className="h-6 text-xs"
+            onClick={onOpenCategoryDialog}
+          >
+            <Plus />
+            Add Category
+          </Button>
+
+          {!!categories.length && <Separator />}
+
           {categories.map((category) => (
             <div
               key={category.identifier}
               onClick={() => onSelectCategory(category)}
-              className="p-2 cursor-pointer hover:bg-gray-100 transition-colors rounded-md"
+              className="p-1 cursor-pointer hover:bg-gray-100 transition-colors rounded-md"
             >
               <p className="text-sm text-gray-700">{category.name}</p>
             </div>

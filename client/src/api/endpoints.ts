@@ -10,4 +10,6 @@ export const endpoints = {
     category: "/api/todo/list",
     todo: "/api/todo/item",
   },
+
+  journal: "/api/journal",
 };

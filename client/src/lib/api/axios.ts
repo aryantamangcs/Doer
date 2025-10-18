@@ -1,13 +1,15 @@
-import axios, { AxiosInstance, AxiosResponse } from "axios";
+import axios, { AxiosInstance, AxiosResponse, isAxiosError } from "axios";
+
+import { paths } from "@/routes/paths";
 
 import {
   getAccessToken,
-  setAccessToken,
   deleteAccessToken,
   //
-  getRefreshToken,
   deleteRefreshToken,
 } from "@/auth/services/token";
+
+import { refreshAccessToken } from "@/api/auth";
 
 import { CONFIG } from "@/global-config";
 
@@ -22,6 +24,7 @@ axiosInstance.interceptors.request.use(
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+
     return config;
   },
   (error) => Promise.reject(error)
@@ -32,26 +35,23 @@ axiosInstance.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    console.log(error);
+
+    if (error.response.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
 
       try {
-        const refreshToken = getRefreshToken();
-        if (!refreshToken) throw new Error("No refresh token");
-
-        const res = await axios.post(`${CONFIG.serverUrl}/auth/refresh`, {
-          refresh_token: refreshToken,
-        });
-
-        const newAccessToken = res.data?.access_token;
-
-        setAccessToken(newAccessToken);
+        const newAccessToken = await refreshAccessToken();
 
         originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+
         return axiosInstance(originalRequest);
       } catch (refreshError) {
         deleteAccessToken();
+
         deleteRefreshToken();
+
+        window.location.href = paths.auth.signIn;
 
         return Promise.reject(refreshError);
       }
