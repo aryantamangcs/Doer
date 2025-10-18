@@ -30,18 +30,12 @@ class JournalDomainServices:
         )
         return await self.repo.add(new_journal)
 
-    async def list_journal(self, user_identifier: str) -> list[Journal]:
+    async def list_journal(self, user_id: int) -> list[Journal]:
         """
         List all the journal of the user
         Finds user by the public identifier
         then finds the jounral associated with the user
         """
 
-        user = await self.user_repo.get_by_identifier(user_identifier)
-        if not user:
-            raise NotFoundError(detail="User not found")
-        if not user.id:
-            raise ServerError(detail="User id is set none")
-
-        all_journals = await self.repo.filter(where={"created_by": user.id})
+        all_journals = await self.repo.filter(where={"created_by": user_id})
         return all_journals

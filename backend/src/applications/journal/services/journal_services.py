@@ -34,16 +34,15 @@ class JournalServices:
             title=payload.title, content=payload.content, created_by=user["id"]
         )
 
-    async def list_journals(self, identifier: str) -> list[Journal]:
+    async def list_journals(self) -> list[Journal]:
         """
         Creates new journal
-        Args:
-            CreateJournalSchema
         Return:
             new Journal
         """
 
-        return await self.domain_service.list_journal(user_identifier=identifier)
+        user = current_user.get()
+        return await self.domain_service.list_journal(user_id=user["id"])
 
 
 def get_journal_service() -> JournalServices:

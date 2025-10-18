@@ -20,7 +20,7 @@ class Journal:
     id: int | None = None
 
     @classmethod
-    def create(cls, title: str, content: str, created_by: int) -> Journal:
+    def create(cls, title: str, content: str, created_by: int) -> "Journal":
         """
         returns instance of Journal
         """
