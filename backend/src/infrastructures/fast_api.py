@@ -3,9 +3,12 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from src.applications.authentication.router import auth_router
 from src.applications.todo.router import router as todo_router
+from src.infrastructures.config.settings import get_settings
 from src.infrastructures.middleware import AuthMiddleware
 
 from .exception_handler import add_exceptions_handler
+
+settings = get_settings()
 
 
 def create_app():
@@ -28,7 +31,7 @@ def create_app():
     # middleware
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=["*"],  # allowed origins
+        allow_origins=settings.ALLOW_ORIGINS,
         allow_credentials=True,  # allow cookies/auth headers
         allow_methods=["*"],  # allow all HTTP methods (GET, POST, etc.)
         allow_headers=["*"],  # allow all headers
