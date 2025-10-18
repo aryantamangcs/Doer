@@ -41,6 +41,8 @@ class TodoListMemberSchema(BaseModel):
     """
 
     member: UserOutSchema
+    role: str
+    access: str
 
     model_config = {"from_attributes": True}
 
