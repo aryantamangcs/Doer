@@ -42,6 +42,7 @@ def create_app():
             "/api/auth/login",
             "/api/auth/signup",
             "/api/auth/check-user",
+            "/api/auth/refresh-token",
             "/docs",
             "/openapi.json",
         ],
