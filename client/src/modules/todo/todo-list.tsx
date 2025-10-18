@@ -6,10 +6,13 @@ import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Badge } from "@/components/ui/badge";
 
 import { useGetTodos, updateTodo, deleteTodo } from "@/api/todo";
 
 import { Category, Todo } from "./types";
+
+import TodoFilters from "./todo-filters";
 
 type TodoListProps = {
   selectedCategory: Category;
@@ -70,18 +73,20 @@ export default function TodoList({
   }, [todos]);
 
   return (
-    <div className="">
+    <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
-        <h6 className="font-bold text-lg">Todo List</h6>
+        <h6 className="font-bold text-lg">My Todo</h6>
 
         <Button
           size="sm"
           onClick={onOpenTodoDialog}
           className="flex items-center gap-2"
         >
-          <Plus className="h-4 w-4" /> Add Todo
+          <Plus className="size-4" /> Add
         </Button>
       </div>
+
+      <TodoFilters />
 
       <div className="divide-y divide-border">
         {todoList.length === 0 ? (
@@ -104,7 +109,7 @@ export default function TodoList({
       </div>
 
       {todoList.length > 0 && (
-        <div className="p-4 bg-secondary/30 border-t border-border">
+        <div className="p-4 border-t border-border">
           <p className="text-sm text-muted-foreground text-center">
             {todoList.filter((t) => t.status !== "completed").length} of{" "}
             {todoList.length} tasks remaining
@@ -132,21 +137,31 @@ function TodoItem({
   const isCompleted = status === "completed";
 
   return (
-    <div className="group p-5 hover:bg-secondary/50 transition-colors flex items-center gap-4">
+    <div className="group p-2 hover:bg-secondary/50 transition-colors flex items-center gap-4">
       <Checkbox
         checked={isCompleted}
         onCheckedChange={() => onComplete(identifier)}
-        className="h-5 w-5"
+        className="h-4 w-4"
       />
 
       <label
         htmlFor={identifier}
-        className={`flex-1 text-lg cursor-pointer select-none transition-all ${
+        className={`flex-1 text-sm cursor-pointer select-none transition-all ${
           isCompleted ? "text-muted-foreground line-through" : "text-foreground"
         }`}
       >
         {title}
       </label>
+
+      <Badge
+        variant={
+          (status === "pending" && "destructive") ||
+          (status === "completed" && "secondary") ||
+          "default"
+        }
+      >
+        {status.charAt(0).toUpperCase() + status.slice(1, status.length)}
+      </Badge>
 
       <Button
         variant="ghost"
