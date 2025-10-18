@@ -83,3 +83,25 @@ class RefreshTokenSchema(BaseModel):
     """
 
     refresh_token: str = Field(..., title="Refresh token for new access token")
+
+
+class UserOutSchema(BaseModel):
+    """
+    schema to validate payload while sending outside the application
+    """
+
+    first_name: str
+    last_name: str
+    username: str
+    email: str
+    identifier: str
+
+    model_config = {"from_attributes": True}
+
+
+class RefreshTokenSchema(BaseModel):
+    """
+    schema to validate refresh token
+    """
+
+    refresh_token: str

@@ -30,7 +30,7 @@ class UserMigration(BaseMigration):
         self.string(name="last_name", nullable=False)
         self.string(name="email", nullable=False)
         self.string(name="password", nullable=False)
-        self.uuid(name="identifier", nullable=False, unique=True)
+        self.string(name="identifier", nullable=False, unique=True)
         self.string(name="username", nullable=False)
 
 

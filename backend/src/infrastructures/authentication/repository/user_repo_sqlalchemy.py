@@ -1,4 +1,4 @@
-from typing import Callable
+from typing import Any, Callable
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -67,12 +67,38 @@ class UserRepoSqlAlchemy(UserRepo):
                 identifier=str(user.identifier),
             )
 
-    async def filter(self, **kwargs) -> list[User]:
+    async def filter(self, where: dict[str, Any] | None = None, **kwargs) -> list[User]:
         """
         Finds  list of users
         Returns:
             List of users
         """
+
+        query = select(UserModel)
+
+        if where:
+            for attr, value in where.items():
+                column = getattr(UserModel, attr)
+                query = query.where(column == value)
+
+        async with self.get_session() as session:
+            result = await session.execute(query)
+            users = result.scalars()
+
+            if not users:
+                return []
+            return [
+                User(
+                    id=user.id,
+                    first_name=user.first_name,
+                    last_name=user.last_name,
+                    email=user.email,
+                    _password=user.password,
+                    username=user.username,
+                    identifier=str(user.identifier),
+                )
+                for user in users
+            ]
 
     async def get_all(self, **kwargs) -> list[User]:
         """

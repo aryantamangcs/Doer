@@ -1,8 +1,10 @@
 from src.applications.todo.schemas.todo_schemas import (
     CreateTodoItemSchema,
+    CreateTodoListMemberSchema,
     CreateTodoListSchema,
     EditTodoItemSchema,
     EditTodoListSchema,
+    TodoListMemberSchema,
 )
 from src.domains.todo.entities.todo_entity import TodoList
 from src.domains.todo.entities.todo_item_entity import TodoItem
@@ -14,6 +16,10 @@ from src.infrastructures.authentication.repository.user_repo_sqlalchemy import (
     UserRepoSqlAlchemy,
 )
 from src.infrastructures.common.context import current_user
+from src.infrastructures.todo.models.todo_list_model import (
+    ListMemberModel,
+    TodoListModel,
+)
 from src.infrastructures.todo.repositories.list_member_repo_sqlalchemy import (
     ListMemberRepoSqlAlchemy,
 )
@@ -23,7 +29,7 @@ from src.infrastructures.todo.repositories.todo_item_repo_sqlalchemy import (
 from src.infrastructures.todo.repositories.todo_list_repo_sqlalchemy import (
     TodoListRepoSqlAlchemy,
 )
-from src.shared.exceptions import ServerError
+from src.shared.exceptions import InvalidError, ServerError
 
 
 class TodoServices:
@@ -58,7 +64,12 @@ class TodoServices:
         """
         lists all the todo list
         """
-        all_todo_lists = await self.todo_list_domain_services.list_all_todo_list()
+        all_todo_lists = await self.todo_list_domain_services.list_all_todo_list(
+            related=[
+                TodoListModel.members,
+                (TodoListModel.members, ListMemberModel.member),
+            ]
+        )
         return all_todo_lists
 
     async def edit_todo_list(self, identifier: str, payload: EditTodoListSchema):
@@ -122,6 +133,18 @@ class TodoServices:
         if not updated_item:
             raise ServerError(detail="Error while updating todo item")
         return updated_item
+
+    async def todo_list_add_member(self, payload: CreateTodoListMemberSchema):
+        """
+        adds member in todo list
+        """
+        member = await self.todo_list_domain_services.add_member(
+            todo_list_identifier=payload.todo_list_identifier,
+            user_identifier=payload.user_identifier,
+        )
+        if not member:
+            raise ServerError(detail="Error while adding member")
+        return member
 
 
 def get_todo_services() -> TodoServices:

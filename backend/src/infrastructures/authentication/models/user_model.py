@@ -6,7 +6,10 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.infrastructures.common.models import BaseModel
 from src.infrastructures.common.timestamp_mixin import TimeStampMixin
-from src.infrastructures.todo.models.todo_list_model import TodoListModel
+from src.infrastructures.todo.models.todo_list_model import (
+    ListMemberModel,
+    TodoListModel,
+)
 
 
 class UserModel(BaseModel, TimeStampMixin):
@@ -19,13 +22,14 @@ class UserModel(BaseModel, TimeStampMixin):
     last_name: Mapped[str] = mapped_column(String(50), nullable=False)
     email: Mapped[str] = mapped_column(String(50), nullable=False)
     password: Mapped[str] = mapped_column(String(50), nullable=False)
-    identifier: Mapped[UUID] = mapped_column(
-        PGUUID(as_uuid=True), default=uuid.uuid4, unique=True, nullable=False
-    )
+    identifier: Mapped[str] = mapped_column(String, unique=True, nullable=False)
     username: Mapped[str] = mapped_column(String(50), nullable=False)
 
     # relationships
     todo_lists: Mapped[list[TodoListModel]] = relationship(back_populates="owner")
+    todo_list_member: Mapped[list[ListMemberModel]] = relationship(
+        back_populates="member"
+    )
 
     def __str__(self):
         return f"{self.email}"

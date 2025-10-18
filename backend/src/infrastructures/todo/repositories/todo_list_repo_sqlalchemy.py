@@ -2,6 +2,7 @@ from typing import Callable
 
 from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 
 from src.domains.todo.entities.todo_entity import TodoList
 from src.domains.todo.repositories.todo_list_repo import TodoListRepository
@@ -76,13 +77,24 @@ class TodoListRepoSqlAlchemy(TodoListRepository):
             )
 
     async def filter(
-        self, where: dict | None = None, **kwargs
-    ) -> list[TodoList] | None:
+        self, where: dict | None = None, related: list[str] | None = None, **kwargs
+    ) -> list[TodoList]:
         """
         finds  todolist
         """
 
         query = select(TodoListModel)
+        if related:
+            for rel in related:
+                if isinstance(rel, tuple):
+                    # Nested relationship e.g. (TodoListModel.members, ListMemberModel.member)
+                    root_rel, nested_rel = rel
+                    query = query.options(
+                        selectinload(root_rel).selectinload(nested_rel)
+                    )
+                else:
+                    # Simple relationship
+                    query = query.options(selectinload(rel))
 
         if where:
             for attr, value in where.items():
@@ -91,10 +103,10 @@ class TodoListRepoSqlAlchemy(TodoListRepository):
 
         async with self.get_session() as session:
             result = await session.execute(query)
-            todo_lists = result.scalars()
+            todo_lists = result.scalars().unique().all()
 
             if not todo_lists:
-                return None
+                return []
             data = [
                 TodoList(
                     id=todo_list.id,
@@ -104,6 +116,7 @@ class TodoListRepoSqlAlchemy(TodoListRepository):
                     identifier=todo_list.identifier,
                     owner_id=todo_list.owner_id,
                     deleted_at=todo_list.deleted_at,
+                    members=list(todo_list.members),
                 )
                 for todo_list in todo_lists
             ]

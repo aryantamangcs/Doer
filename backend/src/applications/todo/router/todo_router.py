@@ -3,9 +3,11 @@ from starlette.status import HTTP_200_OK, HTTP_201_CREATED, HTTP_204_NO_CONTENT
 
 from src.applications.todo.schemas.todo_schemas import (
     CreateTodoItemSchema,
+    CreateTodoListMemberSchema,
     EditTodoItemSchema,
     EditTodoListSchema,
     TodoItemOutSchema,
+    TodoListMemberSchema,
 )
 from src.shared.response import CustomResponse as cr
 from src.shared.response import CustomResponseSchema
@@ -65,6 +67,17 @@ async def edit_todo_list(
         data=TodoListOutSchema.model_validate(updated_list).model_dump(),
         status_code=HTTP_200_OK,
     )
+
+
+@router.post("/list/add-member", response_model=CustomResponseSchema)
+async def todo_list_add_member(
+    payload: CreateTodoListMemberSchema, todo_service=Depends(get_todo_services)
+):
+    """
+    Add member to the todo_list
+    """
+    await todo_service.todo_list_add_member(payload)
+    return cr.success(message="Successfully added member", status_code=HTTP_201_CREATED)
 
 
 @router.delete("/list")

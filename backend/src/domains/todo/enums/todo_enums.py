@@ -18,3 +18,12 @@ class TodoListMemberRoleEnum(str, Enum):
 
     ADMIN = "admin"
     MEMBER = "member"
+
+
+class TodoListMemberAccessEnum(str, Enum):
+    """
+    Todolist member access enum
+    """
+
+    READ = "read"
+    REAR_WRITE = "read-write"

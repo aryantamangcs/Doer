@@ -10,6 +10,7 @@ from src.infrastructures.authentication.repository.user_repo_sqlalchemy import (
     UserRepoSqlAlchemy,
 )
 from src.infrastructures.common.context import current_user
+from src.infrastructures.exception_handler import DOMAIN_TO_HTTP
 from src.shared.exceptions import BearerTokenError, NotFoundError
 from src.shared.response import CustomResponse as cr
 
@@ -53,10 +54,12 @@ class AuthMiddleware(BaseHTTPMiddleware):
 
             return await call_next(request)
         except Exception as e:  # pylint: disable=broad-except
+
+            status_code = DOMAIN_TO_HTTP.get(getattr(e, "code"))
             return cr.error(
                 data=str(e),
                 message=getattr(e, "detail", str(e)),
-                status_code=getattr(e, "status_code", HTTP_400_BAD_REQUEST),
+                status_code=status_code or HTTP_400_BAD_REQUEST,
             )
 
     async def check_token_standard(self, token: str) -> str | None:

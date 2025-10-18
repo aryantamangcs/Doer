@@ -3,6 +3,7 @@ from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field, field_serializer
 
+from src.applications.authentication.schemas.auth_schemas import UserOutSchema
 from src.domains.todo.enums.todo_enums import TodoStatusEnum
 
 
@@ -34,6 +35,16 @@ class EditTodoListSchema(BaseModel):
     name: str | None = None
 
 
+class TodoListMemberSchema(BaseModel):
+    """
+    schema to validate data while sending outside
+    """
+
+    member: UserOutSchema
+
+    model_config = {"from_attributes": True}
+
+
 class TodoListOutSchema(BaseModel):
     """
     schema to validate payload while sending outside the application
@@ -43,6 +54,7 @@ class TodoListOutSchema(BaseModel):
     created_at: datetime
     identifier: str
     owner_id: int
+    members: list[TodoListMemberSchema]
 
     @field_serializer("created_at")
     def datetime_serializer(self, value):
@@ -102,3 +114,12 @@ class TodoItemOutSchema(BaseModel):
         return value.isoformat()
 
     model_config = {"from_attributes": True}
+
+
+class CreateTodoListMemberSchema(BaseModel):
+    """
+    schema to validate the todo list member payload
+    """
+
+    todo_list_identifier: str
+    user_identifier: str

@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from typing import Any
 
 from ..entities import User
 
@@ -25,7 +26,7 @@ class UserRepo(ABC):
         """
 
     @abstractmethod
-    async def filter(self, **kwargs) -> list[User]:
+    async def filter(self, where: dict[str, Any] | None = None, **kwargs) -> list[User]:
         """
         Finds  list of users
         Returns:

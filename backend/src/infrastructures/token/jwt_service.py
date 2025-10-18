@@ -4,7 +4,7 @@ from typing import Any
 import jwt
 
 from src.infrastructures.config.settings import get_settings
-from src.shared.exceptions import CreateError, InvalidError
+from src.shared.exceptions import CreateError, InvalidError, UnAuthorizedError
 
 settings = get_settings()
 
@@ -61,4 +61,4 @@ class TokenService:
             )
             return decoded_token
         except Exception as e:
-            raise InvalidError(detail="Error while decoding the jwt token") from e
+            raise UnAuthorizedError(detail="Error while decoding the jwt token") from e
