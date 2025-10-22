@@ -37,12 +37,14 @@ class TodoListDomainServices:
             ) from e
 
     async def list_all_todo_list(
-        self, related: list[Any] | None = None
+        self,
+        user_id: int,
+        related: list[Any] | None = None,
     ) -> list[TodoList]:
         """
         Lists all the todo lists
         """
-        return await self.repo.filter(related=related)
+        return await self.repo.filter(where={"owner_id": user_id}, related=related)
 
     async def delete_todo_list(self, identifier: str):
         """

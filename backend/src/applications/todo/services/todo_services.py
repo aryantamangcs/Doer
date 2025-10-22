@@ -66,11 +66,13 @@ class TodoServices:
         """
         lists all the todo list
         """
+        user = current_user.get()
         all_todo_lists = await self.todo_list_domain_services.list_all_todo_list(
+            user_id=user["id"],
             related=[
                 TodoListModel.members,
                 (TodoListModel.members, ListMemberModel.member),
-            ]
+            ],
         )
         return all_todo_lists
 
