@@ -57,8 +57,13 @@ class TokenService:
         """
         try:
             decoded_token = jwt.decode(
-                token, settings.JWT_SECRET_KEY, algorithms="HS256"
+                token, settings.JWT_SECRET_KEY, algorithms=["HS256"]
             )
             return decoded_token
+
+        except jwt.InvalidSignatureError as e:
+            raise UnAuthorizedError(detail="Invalid signature") from e
+        except jwt.InvalidTokenError as e:
+            raise UnAuthorizedError(detail="Invalid jwt token") from e
         except Exception as e:
             raise UnAuthorizedError(detail="Error while decoding the jwt token") from e
