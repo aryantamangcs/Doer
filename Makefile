@@ -10,3 +10,6 @@ migrate:
 downgrade:
 	@echo "Migrating the migrations to the database"
 	alembic downgrade -1
+btest:
+	@echo "Running backend tests"
+	PYTHONPATH=./backend/ python -m pytest 
