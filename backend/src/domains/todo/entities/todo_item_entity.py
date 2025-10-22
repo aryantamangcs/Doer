@@ -1,6 +1,6 @@
 import uuid
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timezone
 
 from ..enums import TodoStatusEnum
 
@@ -41,8 +41,8 @@ class TodoItem:
             status=status,
             description=description,
             owner_id=owner_id,
-            created_at=datetime.now(),
-            updated_at=datetime.now(),
+            created_at=datetime.now(timezone.utc),
+            updated_at=datetime.now(timezone.utc),
             identifier=str(uuid.uuid4()),
         )
 
@@ -55,7 +55,7 @@ class TodoItem:
             None
         """
         self.title = title
-        self.updated_at = datetime.now()
+        self.updated_at = datetime.now(timezone.utc)
 
     def change_description(self, description: str) -> None:
         """
@@ -66,7 +66,7 @@ class TodoItem:
             None
         """
         self.description = description
-        self.updated_at = datetime.now()
+        self.updated_at = datetime.now(timezone.utc)
 
     def change_status(self, status: TodoStatusEnum) -> None:
         """
@@ -78,7 +78,7 @@ class TodoItem:
         """
 
         self.status = status
-        self.updated_at = datetime.now()
+        self.updated_at = datetime.now(timezone.utc)
 
     def change_owner(self, owner_id: int) -> None:
         """
@@ -89,11 +89,11 @@ class TodoItem:
             None
         """
         self.owner_id = owner_id
-        self.updated_at = datetime.now()
+        self.updated_at = datetime.now(timezone.utc)
 
     def delete(self) -> None:
         """
         Delete the todo item
         """
 
-        self.deleted_at = datetime.now()
+        self.deleted_at = datetime.now(timezone.utc)

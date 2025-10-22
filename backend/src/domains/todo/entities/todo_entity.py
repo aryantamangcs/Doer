@@ -1,6 +1,6 @@
 import uuid
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone
 
 from src.domains.todo.enums.todo_enums import TodoListMemberAccessEnum
 
@@ -38,8 +38,8 @@ class ListMember:
             todo_list_id=todo_list_id,
             role=role,
             access=access,
-            created_at=datetime.now(),
-            updated_at=datetime.now(),
+            created_at=datetime.now(timezone.utc),
+            updated_at=datetime.now(timezone.utc),
         )
 
     def change_access(self, new_access: TodoListMemberAccessEnum):
@@ -48,20 +48,20 @@ class ListMember:
         """
 
         self.access = new_access.value
-        self.updated_at = datetime.now()
+        self.updated_at = datetime.now(timezone.utc)
 
     def change_role(self, role: TodoListMemberRoleEnum):
         """
         changes the role of the member
         """
         self.role = role.value
-        self.updated_at = datetime.now()
+        self.updated_at = datetime.now(timezone.utc)
 
     def delete(self):
         """
         Deletes the list member
         """
-        self.deleted_at = datetime.now()
+        self.deleted_at = datetime.now(timezone.utc)
 
 
 @dataclass
@@ -88,8 +88,8 @@ class TodoList:
             name=name,
             owner_id=owner_id,
             identifier=str(uuid.uuid4()),
-            created_at=datetime.now(),
-            updated_at=datetime.now(),
+            created_at=datetime.now(timezone.utc),
+            updated_at=datetime.now(timezone.utc),
         )
         return new_todo_list
 
@@ -102,7 +102,7 @@ class TodoList:
             None
         """
         self.name = name
-        self.updated_at = datetime.now()
+        self.updated_at = datetime.now(timezone.utc)
 
     def change_owner(self, owner_id: int) -> None:
         """
@@ -118,4 +118,4 @@ class TodoList:
         """
         Soft deletes the todo list
         """
-        self.deleted_at = datetime.now()
+        self.deleted_at = datetime.now(timezone.utc)
