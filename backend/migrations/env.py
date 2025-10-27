@@ -61,7 +61,13 @@ def run_migrations_online() -> None:
 
     """
     section = config.get_section(config.config_ini_section)
-    section["sqlalchemy.url"] = settings.SYNC_DATABASE_URL  # dynamic DB URL
+    # use URL from alembic.ini / fixture if available
+    alembic_url = config.get_main_option("sqlalchemy.url")
+    if alembic_url:
+        section["sqlalchemy.url"] = alembic_url
+    else:
+        # fallback to default
+        section["sqlalchemy.url"] = settings.SYNC_DATABASE_URL
     connectable = engine_from_config(
         section,
         prefix="sqlalchemy.",
