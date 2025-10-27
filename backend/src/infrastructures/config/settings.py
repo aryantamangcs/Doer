@@ -24,6 +24,8 @@ class Settings(BaseSettings):
         "http://localhost:3000",
         "http://localhost:3001",
     ]
+    TEST_SYNC_DATABASE_URL: str
+    TEST_ASYNC_DATABASE_URL: str
 
     model_config = SettingsConfigDict(env_file=ENV_FILE, extra="ignore")
 
