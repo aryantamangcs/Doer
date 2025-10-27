@@ -106,7 +106,6 @@ class AuthServices:
             Access token and refresh token
         """
         user = await self.repo.get_by_email(payload.email)
-        print("THe validate credentials")
         if not user:
             raise InvalidError(detail="Invalid credentials")
         verified = self.domain_serivce.verify_password(
