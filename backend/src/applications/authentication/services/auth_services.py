@@ -161,7 +161,7 @@ class AuthServices:
             raise CreateError(detail="Error while creating refresh token") from e
 
     async def check_user_credentials(
-        self, email: EmailStr | None, username: str | None
+        self, email: EmailStr | None = None, username: str | None = None
     ) -> str | None:
         """
         Checks the user credentials before for validation

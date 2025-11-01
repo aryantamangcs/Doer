@@ -181,3 +181,45 @@ async def test_save_refresh_token_failure(auth_service):
 
     with pytest.raises(InvalidError):
         await auth_service.save_refresh_token(token="kkdalfjalkjfalf", user_id=1)
+
+
+@pytest.mark.asyncio
+async def test_check_user_credentials_providing_old_email(auth_service):
+    """
+    test check user credentials by providing already existing email
+    """
+
+    with pytest.raises(EmailExistsError):
+        await auth_service.check_user_credentials(email="test@gmail.com")
+
+
+@pytest.mark.asyncio
+async def test_check_user_credentials_providing_new_email(auth_service):
+    """
+    test check user credentials by providing already existing email
+    """
+
+    email = await auth_service.check_user_credentials(email="testnew@gmail.com")
+    assert isinstance(email, str) is True
+    assert email == "testnew@gmail.com"
+
+
+@pytest.mark.asyncio
+async def test_check_user_credentials_providing_old_username(auth_service):
+    """
+    test check user credentials by providing already existing email
+    """
+
+    with pytest.raises(UsernameExistsError):
+        await auth_service.check_user_credentials(username="test123")
+
+
+@pytest.mark.asyncio
+async def test_check_user_credentials_providing_new_username(auth_service):
+    """
+    test check user credentials by providing already existing username
+    """
+
+    username = await auth_service.check_user_credentials(username="test12345")
+    assert isinstance(username, str) is True
+    assert username == "test12345"
